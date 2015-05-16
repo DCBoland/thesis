@@ -1,0 +1,177 @@
+%\documentclass[hidelinks,nogutter]{glasgowthesis}
+\documentclass[hidelinks,gutter]{glasgowthesis}
+\usepackage{emptypage}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{mcaption}
+\usepackage[font=scriptsize]{subfig}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[table]{xcolor}
+\usepackage[toc,page]{appendix}
+\usepackage[export]{adjustbox}
+\usepackage{rotating}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+
+\usepackage{bibunits}
+\usepackage{natbib}
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
+\usepackage{bookmark}
+
+\usepackage{color}
+\usepackage{changebar}
+\usepackage{soul}
+
+\usepackage{pdfpages}
+\usepackage{pdflscape}
+\usepackage{afterpage}
+\usepackage{multicol}
+\usepackage{tabularx}
+
+%\usepackage[T1]{fontenc}
+%\usepackage[utf8]{inputenc}
+%\usepackage{charter}
+\usepackage{environ}
+\usepackage{tikz}
+\usetikzlibrary{calc,matrix}
+\usepackage{balance}
+\hyphenation{Internet analysis analyse}
+\newcommand{\figref}[1]{\figurename~\ref{#1}}
+\newcommand{\eqnref}[1]{eqn.\ \ref{#1}}
+\newcommand{\secref}[1]{section \ref{#1}}
+\newcommand{\chapref}[1]{chapter \ref{#1}}
+
+%\usepackage{mathtools}
+%\DeclarePairedDelimiter{\evdel}{\langle}{\rangle}
+%\newcommand{\ev}{\operatorname{E}\evdel}
+
+\input{dannystyles.tex}
+\graphicspath{{img/}}
+
+\begin{document}
+
+<<setup, cache=FALSE, echo=FALSE>>=
+library(knitr)
+library(ggplot2)
+# global chunk options
+opts_chunk$set(cache=TRUE, autodep=TRUE, warning=FALSE, message=FALSE, echo=FALSE, dev='pdf', dpi=360)
+set.seed(123)
+thesis_theme <- theme_bw(base_size = 12, base_family = "Helvetica") +
+  theme(panel.border = element_blank(), panel.grid=element_blank()) + 
+  theme(legend.position="bottom") 
+
+dbLocation <- "C:/syntonetic/bigmusic.db"
+
+# Format numbers to 2 decimal places
+prettyPrint <- function(value){
+  return(formatC(round(value, 2), big.mark=",",format="f", drop0trailing = TRUE))
+}
+
+# Format p values
+prettyProb <- function(x) {
+  if (x < 0.01) return('p \\textless 0.01')
+  if (x < 0.05) return('p \\textless 0.05')
+  return(paste('p = ',prettyPrint(x),sep=''))
+}
+@
+
+\pagestyle{empty}
+\pagenumbering{gobble}
+\hypersetup{pageanchor=false}
+
+% Don't like having subsection numbers
+\setcounter{secnumdepth}{1}
+
+\title{Engaging with Music Retrieval}
+\author{Daniel Boland}
+\date{April 2015}
+
+\maketitle
+
+\cleardoublepage
+
+\input{abstract.tex} 
+%\addcontentsline{toc}{chapter}{Abstract}
+
+\cleardoublepage
+
+\input{acknowledgements.tex} 
+%\addcontentsline{toc}{chapter}{Acknowledgments}
+\cleardoublepage
+
+%Publications list - bibtex doesn't know to run on bu1.aux, remember to do it manually.
+\begin{bibunit}[plainnat]
+\nocite{BolMclMur15, McGBolMur15,  BolMur15, BolMur14, MclBolBre14, BolMur13, BolMclMur13}
+\renewcommand{\bibname}{List of Contributing Publications}
+\putbib[mypubs]
+\end{bibunit}
+\cleardoublepage
+
+% Table of Contents and merged figures/tables
+\setcounter{tocdepth}{1}
+\singlespacing
+\tableofcontents
+\listoftablesandfigures
+\onehalfspacing
+\cleardoublepage
+
+\pagestyle{fancy}
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{introduction.tex}
+\input{timeline.tex} 
+
+\bookmarksetup{numbered}
+
+\part{Background}
+\label{part:background}
+\input{background//background.tex}
+
+\part{Understanding Music Listening}
+\label{part:understanding}
+<<child-demo, child='understanding//understanding.Rnw'>>=
+@
+
+\part{Designing for Engagement in Music Retrieval}
+\label{part:engagement}
+%\input{"loweng//casual.tex"}
+<<child-tapping, child="loweng//tapping.Rnw">>=
+
+<<child-engdep, child='engdep//engdep.Rnw'>>=
+@
+
+
+\part{Outlook \& Beyond Music}
+\label{part:beyond}
+
+<<child-conclusions, child='industrial.Rnw'>>=
+@
+
+<<child-conclusions, child='vr//vr.Rnw'>>=
+@
+
+<<child-conclusions, child='conclusions.Rnw'>>=
+@
+
+\addcontentsline{toc}{part}{Bibliography}
+%\bibliographystyle{IEEEtran}
+\bibliographystyle{plainnat}
+\bibliography{thesis}
+
+\appendix
+\addcontentsline{toc}{part}{Appendices}
+
+<<child-questionnaire-appendix, child='understanding//questionnaire-appendix.Rnw'>>=
+@
+
+<<child-build-appendix, child='build-instructions.Rnw'>>=
+@
+
+<<child-pressure-appendix, child='engdep//pressure.Rnw'>>=
+@
+\end{document}
