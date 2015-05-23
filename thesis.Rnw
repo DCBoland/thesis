@@ -44,10 +44,6 @@
 \newcommand{\secref}[1]{section \ref{#1}}
 \newcommand{\chapref}[1]{chapter \ref{#1}}
 
-%\usepackage{mathtools}
-%\DeclarePairedDelimiter{\evdel}{\langle}{\rangle}
-%\newcommand{\ev}{\operatorname{E}\evdel}
-
 <<child-styles, child="dannystyles.Rnw">>=
 @
 \graphicspath{{img/}}
@@ -64,7 +60,7 @@ thesis_theme <- theme_bw(base_size = 12, base_family = "Helvetica") +
   theme(panel.border = element_blank(), panel.grid=element_blank()) + 
   theme(legend.position="bottom") 
 
-dbLocation <- "C:/syntonetic/bigmusic.db"
+dbLocation <- "../data/spud.sqlite"
 
 # Format numbers to 2 decimal places
 prettyPrint <- function(value){
