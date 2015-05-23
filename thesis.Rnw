@@ -132,7 +132,7 @@ prettyProb <- function(x) {
 
 \part{Background}
 \label{part:background}
-<<child-MIR, child="background//MIR.Rnw">>=
+<<child-MIR, child="Background//MIR.Rnw">>=
 @
 
 <<child-engagement, child="Background//engagement.Rnw">>=
