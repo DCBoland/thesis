@@ -49,6 +49,7 @@
 %\newcommand{\ev}{\operatorname{E}\evdel}
 
 <<child-styles, child="dannystyles.Rnw">>=
+@
 \graphicspath{{img/}}
 
 \begin{document}
@@ -94,9 +95,11 @@ prettyProb <- function(x) {
 \cleardoublepage
 
 <<child-abstract, child="abstract.Rnw">>=
+@
 \cleardoublepage
 
 <<child-acknowledgements, child="acknowledgements.Rnw">>=
+@
 \cleardoublepage
 
 %Publications list - bibtex doesn't know to run on bu1.aux, remember to do it manually.
@@ -123,31 +126,37 @@ prettyProb <- function(x) {
 \setcounter{page}{1}
 
 <<child-introduction, child="Introduction//introduction.Rnw">>=
+@
 
 \bookmarksetup{numbered}
 
 \part{Background}
 \label{part:background}
 <<child-MIR, child="background//MIR.Rnw">>=
+@
+
 <<child-engagement, child="Background//engagement.Rnw">>=
+@
 
 \part{Understanding Music Listening}
 \label{part:understanding}
-<<child-measures, child='Understanding//measures.Rnw'>>=
-<<child-infotheo, child='Understanding//measures.Rnw'>>=
+<<child-measures, child="Understanding//measures.Rnw">>=
+@
+
+<<child-infotheo, child="Understanding//infotheo.Rnw">>=
 @
 
 \part{Designing for Engagement in Music Retrieval}
 \label{part:engagement}
-<<child-tapping, child="Designs//tapping.Rnw">>=
-
-<<child-engdep, child='Designs//engdep.Rnw'>>=
+<<child-tapping, child="Design//tapping.Rnw">>=
 @
 
+<<child-engdep, child="Design//engdep.Rnw">>=
+@
 \part{Outlook \& Beyond Music}
 \label{part:beyond}
 
-<<child-BO, child='Industrial//BO.Rnw'>>=
+<<child-BO, child='Industry//BO.Rnw'>>=
 @
 
 <<child-VR, child='VR//vr.Rnw'>>=

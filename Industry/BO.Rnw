@@ -39,7 +39,7 @@ The selection behaviours of four users participating in the testing campaign are
 library(dplyr)
 library(ggplot2)
 library(RColorBrewer)
-plays <- tbl_df(read.csv('data/moment-plays.csv', stringsAsFactors = FALSE)) %>% 
+plays <- tbl_df(read.csv('../data/moment-plays.csv', stringsAsFactors = FALSE)) %>% 
   filter(name !="") %>%
   filter(name != lead(name)) %>%
   distinct(name, album, artist,playQueueItemId,userID,dateID,logID)
@@ -69,7 +69,7 @@ foldFunc <- function(foldCol,values,func){
   func(values[is.na(foldCol)])
 }
 
-plays <- tbl_df(read.csv('data/moment-plays.csv', stringsAsFactors = FALSE)) %>%
+plays <- tbl_df(read.csv('../data/moment-plays.csv', stringsAsFactors = FALSE)) %>%
   filter(name !="", name != lead(name), ring!="", mood != "") %>%
   distinct(name, album, artist,playQueueItemId,userID,dateID,logID)
 

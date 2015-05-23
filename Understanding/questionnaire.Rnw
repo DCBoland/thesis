@@ -44,6 +44,7 @@ readResponses <- function(csvfile){
   
   # Fix missing value
   resp$Motivation[5] = levels(resp$Motivation)[4]
+  return(resp)
 }
 
 getUserHistory <- function(userid){
@@ -128,10 +129,7 @@ getAlbumBased <- function(history, thresh){
 }
 @
 
-\section{Measuring Music Engagement}
-\label{sec:questionnaire}
-
-<<questionnaire-analysis, cache=TRUE, echo=FALSE, message = FALSE, warnings = FALSE, results='hide'>>=
+<<questionnaire-analysis>>=
 resp <- readResponses('../data/questionnaireResponses.csv')
 userlist <- lapply(resp$Username,getUserid)
 
@@ -161,7 +159,10 @@ c <- data.frame(Username=usernames,features)
 c <- merge(c,resp,by="Username")
 @
 
-<<questionnaire-consistency, cache=TRUE>>==
+\section{Measuring Music Engagement}
+\label{sec:questionnaire}
+
+<<questionnaire-consistency>>==
 require(psych)
 qcols <-  c("Control","Collection","Organisation","Memory","Motivation","Lyrics")
 test <- hetcor(resp[qcols], ML=FALSE, std.err=TRUE)
