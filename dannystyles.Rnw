@@ -78,7 +78,7 @@
    }%
   ]
 \titlespacing*{\chapter}{0pt}{1cm}{6cm}
-\titlespacing{name=\chapter,numberless}{0pt}{1cm}{2cm}
+\titlespacing{name=\chapter,numberless}{0pt}{0cm}{1.5cm}
 
 \fancypagestyle{plain}{%
   \fancyhf{}

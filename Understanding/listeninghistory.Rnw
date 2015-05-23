@@ -1,0 +1,82 @@
+<<listen-setup, cache=FALSE>>=
+library(infotheo)
+library(reshape)
+library(ggplot2)
+library(changepoint)
+library(zoo)
+library(RColorBrewer)
+library(RSQLite)
+
+getUserHistory <- function(userid, start="2001-01-01 00:00:00", end="2015-12-31 00:00:00", window=20){
+  con <- dbConnect(SQLite(), "../data/spud.sqlite")
+  history <- dbGetQuery(con, paste("SELECT tl.date, t.* FROM lastfmtracklistens as tl JOIN tracks as t ON tl.track=t.trackid WHERE tl.user=",userid,";",sep=''))
+  dbDisconnect(con)
+  low_thresh <- as.POSIXlt(start)
+  high_thresh <- as.POSIXlt(end)
+  
+  # Ordering and discretization
+  history <- history[with(history, order(date)),]
+  history[,'popularity'] <- discretize(history[,'popularity'],nbins=50)
+  history[,'duration'] <- discretize(history[,'duration'],nbins=50)
+  
+  t <- subset(history, date > low_thresh & date < high_thresh)
+  f <- zoo(t[,'artist'])
+  time(f) <- as.POSIXlt(t$date)
+  H <- rollapply(f, window, entropy, by=window, partial=TRUE)
+  Hdf <- fortify(H)
+  
+  cardinality <- min(window,length(unique(f)))
+  Hdf$H <- Hdf$H*100 / log(cardinality)
+  
+  return(Hdf)
+}
+@
+
+\section{Entropy of Listening History}
+For each song being played by a user, the value of a given music feature can be taken as a random variable $X$. The entropy $H \! \left(X\right)$ of this variable indicates the uncertainty about the value of that feature over multiple songs in a listening session. This entropy measure gives a scale from a feature's value being the same for every song in the session, through to every level of the feature being equally likely across the songs. The more a user constrains their music selection by a particular feature, e.g.\ mood or album, then the lower the entropy is over those features. The entropy for a feature is defined as:
+%Entropy can give a measure of diversity though need to be careful wrt definition. A user listening to 100 angry songs and 300 happy songs has just as much `diversity' as user with 1000 and 3000 respectively.
+\begin{align}
+\label{entropy}
+H \! \left(X\right) &= -\sum_{x \in X} p\left(x\right) \log_2 \! \left(p\left(x\right)\right),\\
+\intertext{where $x$ is every possible level of the feature $X$ and the distribution $p \left(x\right)$ is estimated from the songs in the listening session. The resulting entropy value is measured in bits, though can be normalised by dividing by the maximum entropy. This feature scaling achieves a variable $H^\prime\!\left(X\right)$ in the range $[0,1]$:}
+H^\prime \! \left(X\right) &= \frac{H \! \left(X\right)}{\log_2 \! \left[\lvert X \rvert\right]},
+\end{align}
+with the prime notation denoting the scaled function and the bar notation denoting cardinality not absolute value. The maximum entropy will in fact be determined by the minimum of either the number of possible feature levels or the cardinality of the set of songs. Estimating entropy in this way offers a generalised approach as it can be done for any set of features, though the calculation of entropy first requires that features are discretised.
+
+Taking tempo as an example, if a user's music listening session is dominated by songs of a particular tempo, the distribution over values of a \textsc{tempo} feature would be very biased. The entropy $H \! \left(\textsc{tempo}\right)$ would thus be very low relative to what would be expected for the overall music collection. Conversely, if users used shuffle or listened to music irrespective of tempo, then the entropy $H \! \left(\textsc{tempo}\right)$ would tend towards the average entropy of the whole collection. It is important to consider that the music collection from which music is randomly shuffled acts as a prior over the features such as \textsc{tempo}. As users control their music retrieval, the feature entropies of the retrieved music may be lower than for the overall collection, indicating the bits of information provided by the user. It is possible, however, for the user to uniformly sample across the possible feature values (e.g.\ songs of a variety of \textsc{tempo}) irrespective of the collection prior, yielding a higher feature entropy than for the overall collection. The absolute value of the difference between the entropy over the collection and the entropy over the retrieved music is a measure of the information provided by the user.
+
+%By calculating the entropy of music features over the user's listening history or of a given playlist, we can identify which of the features are more certain than the others. Features which do not vary much (and thus have a low entropy) can be used to characterise the current listening style. For example, if entropy over tempo is low, then the user is listening to music of a fixed tempo. Conversely, if the user uses the shuffle playback feature, the entropy over music features would be especially high.
+
+%For example, if a user always listened to music with a high \textsc{tempo} then the entropy $H \! \left(\textsc{tempo}\right)$ would be very small. Similarly, users that are able to explore large music collections or engage in serendipitous retrieval will have high entropy over music features and an especially high $H \! \left(\textsc{artist}\right)$ and $H \! \left(\textsc{album}\right)$.
+
+\subsection{Applying a Window Function}
+Many research questions regarding a user's music listening behaviour concern the change in that behaviour over time. An evaluation of a music retrieval interface might hypothesise that users will be empowered to explore a more diverse range of music. Musicologists may be interested to study how listening behaviour has changed over time and which events precede such changes. It is thus of interest to extend \eqnref{entropy} to define a measure of entropy which is also a function of time:
+\begin{equation}
+H \! \left(X, t\right) = H \! \left(w \! \left(X, t\right)\right),
+\end{equation}
+where $w \! \left(X, t\right)$ is a window function taking $n$ samples of $X$ around time $t$. In this thesis, a rectangular window function with $n=20$ is used, making the assumption that most albums will have fewer tracks than this. The entropy at any given point is limited to the maximum possible $H \! \left(X, t\right) = \log_2 \! \left[n\right]$ i.e.\ where each of the $n$ tracks has a unique value. Where $n$ the window size is of fewer track plays than there are levels of the feature, the maximum possible entropy $H \! \left(X, t\right)$ is instead constrained by the feature levels.
+
+An example of the change in entropy for a music feature over time is shown in \figref{fig:listens-historyplot}. In this case $H \! \left(\textsc{album}\right)$ is shown as this will be $0$ for album-based listening and at maximum for exploratory or radio-like listening. It is important to note that while trends in mean entropy can be identified, the entropy of music listening is itself quite a noisy signal -- it is unlikely that a user will maintain a single music-listening behaviour over a large period of time. Periods of album listening (low or zero entropy) can be seen through the time-series, even after the user's adoption of radio-listening. Despite an overall trend towards shuffle or radio-like music listening, this user's history provides an example of how music listening behaviour can involve a mixture of listening styles.
+
+<<listens-historyplot, eval=TRUE, dev='png', fig.pos='bth', fig.cap="Windowed entropy view of a user's listening history", fig.height=6, fig.width=7, dependson=c('listens-setup')>>=
+Hdf = getUserHistory(2275, end="2011-02-01 00:00:00")
+
+# Find a changepoint
+change = attributes(cpt.meanvar(Hdf$H))$cpts[1]
+change_time <- Hdf[change,]$Index
+Hdf$aftercp <- Hdf$Index > change_time
+
+minT <- min(Hdf$Index)
+maxT <- max(Hdf$Index)
+fills = brewer.pal(10,"RdBu")[c(10,8)]
+# Date when user reported adoption of radio
+radioDate <- as.POSIXlt("2010-02-08 00:00:00")
+
+ggplot(data=Hdf, aes(x=Index, y=H)) + geom_point(alpha=0.7, aes(colour=aftercp)) + geom_smooth(colour="black", n=1500, span=0.4) + xlab("Time") + ylab("Relative Entropy Over Artists (%)") + theme_bw(base_size = 12, base_family = "Helvetica") + theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=0.25), axis.text.y = element_text(hjust=1)) + theme(panel.border = element_blank(), panel.grid=element_blank())  + theme(legend.position="none") + xlim(minT,maxT) + scale_colour_manual(values=fills) + geom_segment(aes(x=radioDate,xend=radioDate,y=0,yend=100)) + geom_text(size=4.2, aes(x=radioDate,y=105,label="Began using radio")) 
+@
+
+\subsection{Changepoints in Music Retrieval}
+Having produced a time-series analysis of music-listening behaviour, it is now possible to identify events which caused changes in this behaviour. In order to identify changepoints in the listening history, the `Pruned Exact Linear Time' (PELT) algorithm from \cite{KilFeaEck12} is applied. The time-series is partitioned in a way that reduces a cost function of changes in the mean and variance of the entropy. Changepoints can be of use in user studies, for example in \figref{fig:listens-historyplot}, the user explained in an interview that the detected changepoint occurred when they switched to using online radio. There is a brief return to album-based listening after the changepoint -- users' music retrieval behaviour can be a mixture of different retrieval models. Changepoint detection can also be a user-centred dependent variable in evaluating music retrieval interfaces, e.g.\ does the user's music listening behaviour change when they adopt a new retrieval interface?
+
+\subsection{Identifying Listening Style}
+The style of music retrieval that the user is engaging in can be inferred using the entropy measures. Where the entropy for a given music feature is low, the user's listening behaviour can be characterised by that feature, i.e.\ there is a high degree of certainty about that feature's value. Alternately, where a feature has high entropy, then the user is not `using' that feature in their retrieval. When a user opts to use shuffle-based playback, i.e.\ the random selection of tracks, there is the unique case that entropy across all features will tend towards the overall entropy of the music collection. In many cases, feature entropies have high covariance, e.g.\ songs on an album will have the same artist and similar features. Other features were not included in \figref{fig:listens-historyplot} as the same pattern was apparent. It is worth noting also that a low entropy does not necessarily indicate that a feature is \emph{useful} -- after Ricky Martin's\footnote{a singer popular in the 1990s who gave exposure to the latin music genre.} fall in popularity, most music listening sessions probably have a very low entropy for the common \textsc{latin} music feature of genre classifiers. %The following section explores how to identify those music features which are useful in describing the user's music listening.

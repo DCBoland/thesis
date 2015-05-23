@@ -1,0 +1,252 @@
+<<questionnaire-setup, cache=TRUE, echo=FALSE, message = FALSE, warnings = FALSE, results='hide'>>=
+library(RSQLite)
+library(polycor)
+
+corrtable <- function(R, p){ 
+	## define notions for significance levels; spacing is important.
+	mystars <- ifelse(p < .001, "***", ifelse(p < .01, "** ", ifelse(p < .05, "* ", " ")))
+
+	## trunctuate the matrix that holds the correlations to two decimal
+	R <- format(round(cbind(rep(-1.11, ncol(R)), R), 2))[,-1] 
+
+	## build a new matrix that includes the correlations with their apropriate stars 
+	Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(R)) 
+	diag(Rnew) <- paste(diag(R), " ", sep="") 
+	rownames(Rnew) <- colnames(R) 
+	colnames(Rnew) <- paste(colnames(R), "", sep="") 
+
+	## remove upper triangle
+	Rnew <- as.matrix(Rnew)
+	Rnew[upper.tri(Rnew, diag = TRUE)] <- ""
+	Rnew <- as.data.frame(Rnew) 
+
+	## remove last column and return the matrix (which is now a data frame)
+	Rnew <- cbind(Rnew[1:length(Rnew)-1])
+	return(Rnew) 
+}
+
+readResponses <- function(csvfile){
+  resp <- read.csv(csvfile,stringsAsFactors=FALSE,encoding="UTF-8",quote="\"")
+  colnames(resp) <- c("Timestamp","Username","Selection Methods","Devices","Control","Collection","Organisation","Memory","Motivation","Lyrics")
+  ControlLvls <- c("I generally listen to whatever is played","I listen to a particular radio channel or recommendations in a style of music I like","Sometimes I like to choose, sometimes Ill listen to radio or recommendations","I generally prefer listening to music Ive chosen e.g. in a playlist I made","I like to have full control over which album or song Im listening to")
+  CollectionLvls <- c("Up to 5 albums or about 50 MP3s","Up to 25 albums or about 250 MP3s","Up to 125 albums or about 1250 MP3s","Up to ~5000 albums or about 50,000 MP3s","More than 5000 albums or 50,000 MP3s")
+  OrganisationLvls <- c("I can never find anything when I want it!","There is no specific organisation to my music collection","My music system organises my collection for me","My collection is broadly categorised by hand (e.g. genre or mood playlists/folders)","All my collection is organised by hand in a certain way")                         
+  MemoryLvls <- c("I have no idea","I doubt it","Not off hand, I probably could if I thought about it","I can remember what it was, but not exactly when I bought it","Yes, I can remember what it was and exactly when and where I bought it")
+  MotivationLvls <- c("I cant remember","It was recommended to me, so I thought Id give it a go","Id heard a couple of the tracks I liked so bought it to see if the whole thing was good","I knew I would like it, because Ive built up a knowledge of what I like","I had to have it, I heard it and I just had to go and buy it")                                                                      
+  LyricsLvls <- c("I never really listen to the lyrics in songs","With some of my favourite music I know the lyrics, but otherwise I dont really pay attention to the lyrics in songs","I like to know the lyrics so I can sing along","I have to know the lyrics because its central to understanding what the artist is trying to convey","I have to know the lyrics because I dont want to be singing along to something that might be at odds with my beliefs")
+  
+  resp$Control <- factor(resp$Control, levels=ControlLvls, ordered=TRUE)
+  resp$Collection <- factor(resp$Collection, levels=CollectionLvls, ordered=TRUE)
+  resp$Organisation <- factor(resp$Organisation, levels=OrganisationLvls, ordered=TRUE)
+  resp$Memory <- factor(resp$Memory, levels=MemoryLvls, ordered=TRUE)
+  resp$Motivation <- factor(resp$Motivation, levels=MotivationLvls, ordered=TRUE)
+  resp$Lyrics <- factor(resp$Lyrics, levels=LyricsLvls, ordered=TRUE)
+  
+  # Fix missing value
+  resp$Motivation[5] = levels(resp$Motivation)[4]
+}
+
+getUserHistory <- function(userid){
+  con <- dbConnect(SQLite(), dbLocation)
+  query <- paste("SELECT date, t.popularity, t.duration, t.artist, t.album
+     FROM (SELECT * FROM lastfmtracklistens WHERE user==",userid,") as l
+       JOIN tracks t
+         ON l.track == t.trackid;",sep='')
+
+  history <- dbGetQuery(con, query)
+  dbDisconnect(con)
+  
+  #discretize
+  #history[,'popularity'] <- discretize(history[,'popularity'],nbins=50)
+  #history[,'duration'] <- discretize(history[,'duration'],nbins=50)
+  return(history)
+}
+
+getUserid <- function(username){
+  con <- dbConnect(SQLite(), dbLocation)
+  query <- paste("SELECT userid FROM lastfmusers WHERE lastfmuserid=='",username,"';",sep='')
+  userid <- dbGetQuery(con, query)
+  dbDisconnect(con)
+  return(userid)
+}
+
+sortUserHistory <- function(history){
+  history <- history[with(history, order(date)),]
+  return(history)
+}
+
+sortAndFixDates <- function(history){
+  history <- history[with(history, order(date)),]
+  times <- as.double(as.POSIXlt(history$date, format="%Y-%m-%d %H:%M:%S", tz = "GMT"))
+
+  history$date <- times
+  return(history)
+}
+
+getPlayIntervals <- function(history){
+  durations <- history$t.duration[1:(length(history$date)-1)]
+  times <- history$date
+  diffs <- times[2:length(times)] - times[1:(length(times)-1)] - durations
+  history$playinterval <- c(diffs,NA)
+  return(history)
+}
+
+getInterventions <- function(history, minPause=2, maxPause=120, skipThresh=0){ 
+  diffs <- history$playinterval[1:(length(history$playinterval)-1)]
+  skips <- sum(diffs < skipThresh)
+  pauses <- sum(diffs > minPause & diffs < maxPause)
+  auto <- sum(diffs >= 0 & diffs <= minPause)
+  return((skips + pauses)/(skips + pauses + auto))
+}
+
+getNoControl <- function(history, minPause=2, maxPause=120, skipThresh=0){
+  diffs <- history$playinterval[1:(length(history$playinterval)-1)]
+  skips <- sum(diffs < skipThresh)
+  pauses <- sum(diffs > minPause & diffs < maxPause)
+  auto <- sum(diffs >= 0 & diffs <= minPause)
+  return((auto)/(skips + pauses + auto))
+}
+
+getSkipLambda <- function(history, skipThresh=0){
+  diffs <- history$playinterval[1:(length(history$playinterval)-1)]
+  durations <- history$t.duration[1:(length(history$t.duration)-1)]
+  skips <- diffs[diffs < skipThresh]
+  l <- durations[diffs < skipThresh]
+  return(mean(l/-skips))
+}
+
+getSelectionLambda <- function(history, minPause=1, maxPause=30){
+  diffs <- history$playinterval[1:(length(history$playinterval)-1)]
+  ds <- diffs[diffs > minPause & diffs < maxPause]
+  return(sum(1/ds)/length(ds))
+}
+
+getAlbumBased <- function(history, thresh){
+  runs <- rle(history$t.album)
+  albumBased <- sum(runs$lengths[runs$lengths > thresh]) / nrow(history)
+  return(albumBased)
+}
+@
+
+\section{Measuring Music Engagement}
+\label{sec:questionnaire}
+
+<<questionnaire-analysis, cache=TRUE, echo=FALSE, message = FALSE, warnings = FALSE, results='hide'>>=
+resp <- readResponses('../data/questionnaireResponses.csv')
+userlist <- lapply(resp$Username,getUserid)
+
+isUser <- sapply(userlist,nrow) == 1
+userlist <- unlist(userlist)
+usernames <- resp$Username[isUser]
+
+histories <- lapply(userlist,getUserHistory)
+hasHistory <- sapply(histories,nrow) > 0
+
+usernames = usernames[hasHistory]
+histories = histories[hasHistory]
+
+minPause = 0.1
+maxPause = 30
+skipThresh = 0
+
+histories <- lapply(histories,sortAndFixDates)
+histories <- lapply(histories,getPlayIntervals)
+features <- cbind(interventions=unlist(lapply(histories, getInterventions, minPause, maxPause)),
+  album=unlist(lapply(histories, getAlbumBased,thresh=3)),
+  selectionLambda=unlist(lapply(histories, getSelectionLambda, minPause, maxPause)),#1/unlist(lapply(histories, getMedianIntervention, minPause=0.1, maxPause=30)),
+  skipLambda=unlist(lapply(histories, getSkipLambda, skipThresh)),
+  auto=unlist(lapply(histories, getNoControl, minPause, maxPause, skipThresh))
+)
+c <- data.frame(Username=usernames,features)
+c <- merge(c,resp,by="Username")
+@
+
+<<questionnaire-consistency, cache=TRUE>>==
+require(psych)
+qcols <-  c("Control","Collection","Organisation","Memory","Motivation","Lyrics")
+test <- hetcor(resp[qcols], ML=FALSE, std.err=TRUE)
+a <- alpha(test$correlations)
+q_cron <- a$total[1,1]
+@
+
+This section explores the utility of the music engagement questionnaires discussed earlier in \secref{sec:musicengagement}, as well as their relationship to the measures introduced in this chapter. The music engagement and music selection questionnaires from music psychology were combined and updated for digital collections (see Appendix \ref{app:questionnaire}), and posted along with a request for Last.fm usernames to an online message board for Last.fm users. Users of Last.fm and in particular, those accessing related message boards, will be a biased sample of more musically engaged individuals. This issue is inherent in an open survey inviting participation and any interpretation of the results in this section should bear in mind that they may not generalise beyond this demographic. \Sexpr{nrow(resp)} responses were received, shown in Figure \ref{fig:questionnaire-likert}, of which \Sexpr{length(userlist)} usable listening histories were mined. $88\%$ reported use of mobile music selection, $93\%$ use of a computer, $60\%$ use of streamed music and only $18\%$ use of radio.
+
+ %The internal reliability of the \emph{music engagement} questionnaire for the Last.fm users is fairly poor (Cronbach's $\alpha = \Sexpr{prettyPrint(q_cron)}$). %Given the biased sample of listeners, it is likely that Cronbach's $\alpha$ is underestimated here, and this result does not reflect much upon the music engagement questionnaire itself. 
+The questionnaire responses were mostly skewed toward high engagement with music. The importance of \textit{Lyrics} has a distinctly different distribution. Cronbach's $\alpha$ for all factors was $0.43$, indicating that the questionnaire is covering a number of distinct facets of users' music engagement. How much \textit{Control} a user likes to have over music selection is the most relevant of the factors to the measures of intervention, with the others addressing more qualitative aspects. This \textit{Control} factor is notable for being similar to the concept of \textit{retrieval control} as discussed in \chapref{chap:eng}. The measures of \textit{Album} based listening, \textit{Intervention Rate}, \textit{Skip speed}, and \textit{Select speed} were calculated from the listening histories of the respondents, and their correlations with \textit{Control}, given in table \ref{table:controlcorr}. 
+
+\subsection{Limitations \& Bias}
+The recruitment for this questionnaire and analysis of user listening histories was specifically targeted at Last.fm users. In order to measure a user's music listening behaviour, the user must first have logged their music listens across their devices. Performing this level of logging, and being a Last.fm user, could itself be considered a mark of music engagement. It is unlikely then that this method of recruitment will have captured the most casual of music listeners. This would explain why most of the participants who complete the questionnaire reported a high level of engagement with music in the questionnaire responses. The results explore the correlations between engagement and listening behaviour and are not intended to reflect the distribution of engagement levels amongst general music listeners.
+
+\clearpage
+\begin{landscape}
+<<questionnaire-likert, dev='png', fig.pos='p', fig.scap="Music engagement questionnaire responses", fig.cap="Likert-scaled music engagement questionnaire responses. Full wordings of questionnaire and available responses are included in the Appendix. Percentages are shown for aggregated low, neutral and high responses.", fig.height=5, fig.width=9>>==
+require(likert)
+
+fixLikert <- function(colname, resp){
+  #levels(resp[,colname]) <- gsub("recommendation","recomm", levels(resp[,colname]))
+  #levels(resp[,colname]) <- sapply(levels(resp[,colname]), function(x) { paste(strwrap(x, width=20),collapse = "\n") })
+  levels(resp[,colname]) <- c("Least engaged", "Low","Neutral","High","Most engaged")
+  return(resp[,colname])
+}
+
+fixResp <- resp
+qcols <-  c("Control","Collection","Organisation","Memory","Motivation","Lyrics")
+df <- data.frame(lapply(qcols, fixLikert, fixResp))
+colnames(df) <- qcols
+t <- likert(df)
+plot(t, centered=FALSE) + theme(text=element_text(size=12, family="Helvetica"))
+@
+\end{landscape}
+\clearpage
+
+\subsection{Results}
+
+<<questionnaire-table, cache=TRUE, results="asis">>==
+require(xtable)
+require(psych)
+
+#test <- data.frame(Control=c$Control,Churn=c$churn,Album=c$album,Interventions=c$interventions,"Skip lambda"=c$skipLambda,"Selection lambda"=c$selectionLambda)
+test <- data.frame(Control=c$Control,Album=c$album,Interventions=c$interventions,"Skip speed"=c$skipLambda,"Selection speed"=c$selectionLambda)
+#fix colnames
+colnames(test)[4:5] <- c("Skip Speed","Selection Speed")
+
+results <- hetcor(test, ML=TRUE, std.err=TRUE)
+zscores <- abs(results$correlations / results$std.errors)
+
+results_cron <- alpha(results$correlations)$total[1,1]
+#sig <- zscores > 1.96
+#vsig <- zscores > 2.58
+pvalues <- prettyPrint(2*pnorm(-abs(zscores)))
+#print(results$correlations["c$Control","c.interventions"])
+
+cortab <- corrtable(results$correlation,pvalues)
+#Discard blank row
+cortab <- cortab[2:nrow(cortab),]
+
+x <- xtable(cortab,caption=c("Polyserial correlations of users' self-reported \\textit{Control} over music selection and the measures of music-listening behaviour derived from their listening histories. * $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$.","Correlations of music-listening behaviour and music engagement"), label="table:controlcorr")
+print(x, table.placement="!b", sanitize.text.function = function(x) x,
+         hline.after=NULL,
+         add.to.row = list(pos=list(-1,0,nrow(x)), command=c('\\toprule \n','\\midrule \n','\\bottomrule \n')))
+@
+
+As the questionnaire responses are ordinal (Likert scale) and the other measures are interval, polyserial correlation was used to estimate the relationship between underlying continuous distributions from which the results were sampled. The number of tracks selected due to user \textit{Intervention} (skipping or pausing) in music selection was significantly inversely correlated with their self-reported \textit{Control} ($\rho = \Sexpr{prettyPrint(results$correlations["Control","Interventions"])}$, $p = \Sexpr{pvalues["Control","Interventions"]}$). Users' use of \textit{Album} based music-listening was also significantly correlated with self-reported \textit{Control} ($\rho = \Sexpr{prettyPrint(results$correlations["Control","Album"])}$, $p = \Sexpr{pvalues["Control","Album"]}$). The album-listening detection metric was confirmed using the questionnaire responses, with an independent-samples t-test between users who had or had not listed album-based selection, with significant differences in \textit{Album}, \textit{Skip speed} ($p < .01$), and \textit{Interventions} ($p < .05$). The internal reliability of the measures in table \ref{table:controlcorr} was high, with Cronbach's $\alpha = \Sexpr{prettyPrint(results_cron)}$.
+
+%These results at first appear counter-intuitive, with users saying they prefer more control and yet intervening less in the music playack and retrieval. One explanation for this could be that the detected interventions are corrective, with users being more likely to skip or pause to find a new track if they had less control over the initial music selection. The correlation between \textit{Control} and \textit{Album}-based listening suggests that more engaged listeners are more likely to have invested effort in making a controlling selection at the start of their music retrieval e.g.\ having crafted a playlist or selected an appropriate album. This result makes clear the importance of the distinction between \emph{control} and \emph{focus}, as discussed in \secref{sec:musicengagement}.
+
+The results in table \ref{table:controlcorr} paint a somewhat surprising picture of how music engagement influences user interaction. While it might appear counter-intuitive that desire for \textit{Control} leads to fewer interventions, engaged listeners are more likely to invest in selecting a specific album. This \textit{Album} based listening was seen to have a significant moderate correlation with users' self-reported preferred level of \textit{Control}. Naturally, album based listening also meant a significant inverse correlation with user intervention in music playback, thus the controlled selection of an album often results in less measured interaction. Casual music listening, by shuffle or recommendation, requires less initial investment, but then more corrective actions are required when songs are deemed unsuitable by the user. This reflects the nuanced view of engagement discussed in \secref{sec:musicengagement}, with \textit{Control} proving a useful factor however not explaining the entire story of user engagement.
+
+\textit{Control} also had significant correlations with \textit{Skip speed} and \textit{Select speed}. More musically engaged listeners made quicker interventions in their music listening. This adds to the profile of musically engaged listeners who know what they want and who need to make few interventions, which are decisive and quick. By combining the qualitative work of music psychology with the empirical measures of how these users interacted with their music retrieval interfaces, a set of listener profiles can now be identified. %when developing music retrieval interactions:
+
+\vfill
+
+\section{Listener Profiles}
+\label{sec:profiles}
+These profiles characterise music listening behaviour in terms of the user's engagement in the music retrieval. While music engagement is considered a general property of the listener, it does vary with context, and so these profiles characterise a given instance of music-listening, with a given user's engagement level perhaps varying within or between sessions.
+
+\begin{description}
+\item[Engaged] These users have a high initial \emph{interaction engagement} and are likely to make a selection with a high degree of \emph{retrieval control}, with more specific retrieval queries, e.g.\ the selection of a particular album. They then make very few further interventions, which are quick and decisive. This subsequent lack of intervention may be the result of the user having invested sufficient effort in the original retrieval, though may also be from a desire to not interfere with the album's playback, treating it as an entire work of art.
+\item[Casual] These users wish to satisfice, investing little effort in the retrieval at any given point. The lack of initial \emph{retrieval control} means that these users need to be able to easily make corrective interventions. Notably, these users may ultimately make more interventions, and may actually expend more effort and have more \emph{interaction engagement} in the retrieval over the course of an entire listening session, if measured in terms of interventions. The number of these subsequent corrective interventions could be used as relevance feedback for the recommender system, though care must be taken when interpreting behaviours in hedonic retrieval. In particular, adding such feedback loops may then influence the user's behaviour, for example the user may be concerned about how the relevance feedback will incorporate their choices and avoid the playback of embarrassing music.
+\item[Mixed] Most users vary between levels of \textit{Casual} to \textit{Engaged} music listening. In the engagement literature in \secref{sec:musicengagement}, there are descriptions of users occupying a range of points on the continuum, and varying between these points depending upon their listening context.
+\end{description}
+
+\clearpage

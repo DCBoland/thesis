@@ -1,0 +1,130 @@
+\chapter{Industrial Application}
+\label{chap:industrial}
+
+\lettrine{I}{ndustry} adoption of concepts and methodologies developed in academia can provide a platform for evaluating work `in the wild', implemented to a standard comparable to users' existing products. The development of Bang \& Olufsen's BeoSound Moment was informed by the engagement-dependent, mood-based music retrieval interactions discussed in this thesis. It incorporates an interface that allows users to determine their engagement with a music retrieval interaction, and to choose how much control to have over their music recommendation. It also presents the music retrieval using a low-dimensional projection of a music space, based on the mood features. As part of the product development process, the metrics developed in chapters \ref{chap:measures} and \ref{chap:info-theo} were used to capture changes in users' music listening behaviour once they adopted the BeoSound Moment as their retrieval device. This chapter documents the exploratory evaluation of this product, and the impact of the ideas discussed in this thesis.
+\newpage
+
+\begin{figure}
+\centering
+\includegraphics[width=0.95\textwidth]{momentDesign}
+\caption[BeoSound Moment]{The development of the BeoSound Moment was informed by the engagement-dependent, mood-based music retrieval interactions discussed in \chapref{chap:eng-dep}. Press materials, \textcopyright Bang \& Olufsen.} 
+\label{momentDesign}
+
+\end{figure}
+\section{BeoSound Moment}
+The BeoSound Moment is a commercial implementation of an engagement-dependent music retrieval system, depicted in figure \ref{momentDesign}. A mood-based presentation of the available music space is used, similar to that in \chapref{chap:eng-dep}. As well as having alternative music selection options (genre, radio, album, etc.), the Moment differs from the work in this thesis in that engagement is separated into three distinct modes: \emph{core}, \emph{familiar} and \emph{discovery}. These modes control the balance between the music selection being based on the user's music library and recommendations from a cloud music service. Users are able to listen to their own music by making a mood selection at the \emph{core} level of engagement. Strongly seeded recommendations are made for mood selections at the \emph{familiar} level. Users can hand over control, receiving broad recommendations by making mood selections at the \emph{discovery} level.
+
+While some of the results of testing during development are discussed here, the product has been publicly announced at the Consumer Electronics Show 2015\footnote{\url{http://bogone.blob.core.windows.net/static/files/press/BeoSound_Moment_Press_release.pdf} (06/01/15)} and will soon be evaluated `in the wild' by customers.
+
+\begin{figure}[tbph]
+\centering
+\includegraphics[width=0.95\textwidth]{moodWheel}
+\caption[MoodWheel Interface]{Music is arranged around a `MoodWheel' that is coloured according to the mood of the represented music. Users can select moods from the wheel, with the radius of their selection indicating their chosen level of engagement. Press materials, \textcopyright Bang \& Olufsen.} 
+\label{moodWheel}
+\end{figure}
+
+
+\subsection{MoodWheel}
+The engagement-dependent selection mechanic is presented to the user as a `MoodWheel' (figure \ref{moodWheel}) - the available music is arranged around a wheel, which is coloured according to the mood of the represented music. The wheel comprises three distinct layers that correspond to the \emph{core}, \emph{familiar} and \emph{discovery} styles of selection or recommendation. Users can touch a position on the ring to hear music of the selected mood from their own collection, or recommendation, according to the selected engagement level. 
+
+In contrast to the similar interface in \chapref{chap:eng-dep}, the range of engagement levels is discrete rather than continuous. While this allows users to more easily select and return to stable states in their interaction, it does require users to maintain and switch between parallel mental models of retrieval behaviour. By limiting the number of engagement levels to three, the risk of users being confused is mitigated, though at the cost of users being able to finely control the handover between their music and recommendation. 
+
+\section{Evaluating Users' Choice of Engagement}
+The engagement-dependent approach developed in this thesis is based upon the motivation that users would like to perform their music retrieval at a range of engagement levels. Being designed to afford such an interaction, the BeoSound Moment provides a further opportunity to test this thesis' design guidelines. Logs of users' music listening during product testing were made available for analysis, though were limited to weekly snapshots due to the ongoing development of the product. The music selections made in these logs were aggregated by selection style (engagement level on MoodWheel or other, such as album lookup).
+
+\subsection{Results}
+The selection behaviours of four users participating in the testing campaign are depicted in figure \ref{fig:industrial-eval}. The three levels of the MoodWheel (\emph{core}, \emph{familiar} and \emph{discovery}) are coloured blue and reflect mood-based selections at differing levels of engagement. \emph{Other} methods of music selection are represented in the black column, covering the various features of the Moment, typically being album based music selection. Even with this snapshot of a few users, differences in interaction styles are clear. User 2 primarily used the MoodWheel to make \emph{core} selections from their collection, and often made \emph{familiar} selections to hear recommendations seeded by their collection. User 4's selections were markedly different, they used the MoodWheel at the \emph{discovery} level for broad mood-based recommendations, and used other selection methods otherwise. Users 1 and 3 made less use of the system, with user 3 opting not to use the mood-based selection method to any significant extent.
+
+<<industrial-eval, dev='png', fig.pos='bthp', fig.cap="Users' choice of engagement level when using the BeoSound Moment MoodWheel over a snapshot period of several days during product development. A range of behaviours (and listening styles) are shown, from user 2's mood-based selections of mostly their own music, user 4's exploratory listening, and 3 and 4's use of other browsing methods.", fig.scap="Selected engagement levels in BeoSound Moment evaluation", fig.height=6, fig.width=7>>=
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+plays <- tbl_df(read.csv('data/moment-plays.csv', stringsAsFactors = FALSE)) %>% 
+  filter(name !="") %>%
+  filter(name != lead(name)) %>%
+  distinct(name, album, artist,playQueueItemId,userID,dateID,logID)
+
+playcounts <- plays %>%
+  group_by(userID, ring) %>%
+  summarise(count=n()) %>%
+  ungroup() %>%
+  transmute(
+    userID = factor(userID, labels=paste('User',seq(1:length(unique(userID))))), 
+    selection=factor(ring, levels=c("","core","familiar","discovery"), labels=c("Other","Core","Familiar","Discovery")),
+    count)
+
+fills = c('#000000',brewer.pal(10,"RdBu")[c(10,9,8)])
+ggplot(playcounts, aes(x=selection, y=count, fill=selection)) + geom_bar(stat="identity") + facet_wrap( ~ userID) + theme_bw(base_size = 12, base_family = "Helvetica") + scale_fill_manual(values=fills) + theme(legend.position="bottom") + theme(strip.background = element_rect(fill="white")) + xlab("selection type")
+@
+
+\section{Evaluating Recommendation Diversity}
+\label{industral:diversity}
+\vspace{-0.1in}
+
+<<industrial-entropycalc, cache=TRUE, echo=FALSE, message = FALSE, warnings = FALSE, results='hide'>>==
+library(tidyr)
+library(infotheo)
+library(caret)
+foldFunc <- function(foldCol,values,func){
+  func(values[is.na(foldCol)])
+}
+
+plays <- tbl_df(read.csv('data/moment-plays.csv', stringsAsFactors = FALSE)) %>%
+  filter(name !="", name != lead(name), ring!="", mood != "") %>%
+  distinct(name, album, artist,playQueueItemId,userID,dateID,logID)
+
+k = 10
+
+plays <- plays[sample(nrow(plays)),]%>%
+  # Stratified k-fold CV from caret
+  mutate(fold=createFolds(factor(ring), k = k, list = FALSE)) %>%
+  group_by(ring)
+
+Hplays <- data.frame()
+for (i in 1:k){
+  Hplays <- plays %>%
+    filter(fold != i) %>%
+    summarise_each(funs(rH = 100*entropy(.) / log(length(.))),album:artist) %>%
+    rbind(Hplays)
+}
+Hplays <- Hplays %>%
+  group_by(ring) %>%
+  summarise_each(funs(mean,sd),-ring) %>%
+  as.data.frame() %>%
+  gather(variable,value,-ring) %>%
+  separate(variable, into = c("feature", "variable"), sep = "_") %>%
+  spread(variable,value) %>%
+  transmute(selection=factor(ring, levels=c("core","familiar","discovery"), labels=c("Core","Familiar","Discovery")),
+            feature=factor(feature, levels=c("mood","name","album","artist"), labels=c("mood","track","album","artist")),
+            meanentropy=mean,
+            sdentropy=sd)
+@
+
+The information-theoretic measures developed in \chapref{chap:info-theo} are applied here to compare the diversity of the music recommendations across the different engagement levels. The entropy over mood, tracks, albums and artists was calculated across the music selections made in each of the engagement levels. Users were able to choose the mood of music they received recommendations of, thus the diversity of mood is a reflection of the users' choices. 
+
+As this evaluation is focused on the mood-based recommendation, any track selections not made using the MoodWheel were discarded. This left \Sexpr{nrow(plays)} play events for the snapshot period available for analysis. In order to normalise the entropy (which may otherwise increase with number of track plays), relative entropy is calculated by dividing by the maximum theoretical entropy for the numer of track plays for each condition. Further details on this approach are given in \chapref{chap:info-theo}. \Sexpr{k}-fold stratified cross-validation was used when calculating the relative entropy, to indicate the robustness of the results despite the small sample size. The resulting error values should be treated with caution, however, as the cross-validation results can not be assumed to be normal or i.i.d.
+\vspace{-0.2in}
+
+\subsection{Results}
+\vspace{-0.1in}
+The entropies for track, album and artist show the diversity of recommendations made to users. The mean relative entropies across the folds, and the standard deviations in percentage points, are given in table \ref{table:industrial-entropy}. These results are also depicted in figure \ref{fig:industrial-entropy}, along with $95\%$ confidence intervals. As might be expected, the diversity of tracks from the \emph{core} level (i.e.\ from the user's own music collection) was lower than the diversity of tracks from the recommendation levels. It is notable however that a more diverse range of artists was recommended at the \emph{familiar} level than for the \emph{discovery} level. These selection levels involve two distinct recommender strategies and so differences are to be expected, however users would likely expect to receive recommendations of a wider range of artists at the discovery level. This analysis is part of an ongoing development process, but illustrates how this approach can identify areas for investigation. 
+
+<<industrial-entropytable, cache=TRUE, results="asis">>==
+require(xtable)
+xdf<- Hplays %>%
+  transmute(Feature=feature, selection, meanentropy=prettyPrint(meanentropy), sdentropy=prettyPrint(sdentropy)) %>%
+  unite(entropy, meanentropy, sdentropy, sep=' (') %>%
+  mutate(entropy=paste(entropy,')',sep='')) %>%
+  spread(selection, entropy)
+
+colnames(xdf)[2:4] <- paste(colnames(xdf)[2:4]," $\\mu$ \\% ( $\\sigma$ p.p.)")
+x <- xtable(xdf,caption=c("Mean relative entropy (\\%) for each feature across the different engagement levels (Core, Familiar and Discovery) of the BeoSound Moment's MoodWheel. Standard deviation (in p.p.) is also given. These values reflect the diversity of music recommendations given for each of the recommendation strategies.","Table of relative diversities of recommenders in the BeoSound Moment"), label="table:industrial-entropy")
+print(x, table.placement="!b", sanitize.text.function = function(x) x, include.rownames=FALSE)
+@
+
+<<industrial-entropy, dev='png', fig.pos='bthp', fig.cap=paste("Relative feature entropy was calculated across the music selections and recommendations made in each of the engagement levels of the BeoSound Moment's MoodWheel. $95\\%$ confidence intervals are obtained from a ",k,"-fold stratified cross-validation, and depicted as error bars.",sep=''), fig.scap="Diversity of music recommendations in the BeoSound Moment", fig.height=6, fig.width=7 >>=
+fills = brewer.pal(10,"RdBu")[c(10,9,8)]
+ggplot(Hplays, aes(x=selection, y=meanentropy, fill=selection, ymin=meanentropy - 1.96*sdentropy,ymax = meanentropy + 1.96*sdentropy)) + geom_bar(position=position_dodge(.9),stat="identity") + facet_wrap( ~ feature) + geom_errorbar() + theme_bw(base_size = 12, base_family = "Helvetica") + scale_fill_manual(values=fills) + theme(legend.position="bottom") + theme(strip.background = element_rect(fill="white")) + xlab("selection type") + ylab("relative entropy %") 
+@
+
+\section{Survivorshop Curves}

@@ -1,0 +1,99 @@
+% code by Andrew:
+% http://tex.stackexchange.com/a/28452/13304
+\makeatletter
+\let\matamp=&
+\catcode`\&=13
+\makeatletter
+\def&{\iftikz@is@matrix
+  \pgfmatrixnextcell
+  \else
+  \matamp
+  \fi}
+\makeatother
+
+\newcounter{lines}
+\def\endlr{\stepcounter{lines}\\}
+
+\newcounter{vtml}
+\setcounter{vtml}{0}
+
+\newif\ifvtimelinetitle
+\newif\ifvtimebottomline
+\tikzset{description/.style={
+  column 2/.append style={#1}
+ },
+ timeline color/.store in=\vtmlcolor,
+ timeline color=red!80!black,
+ timeline color st/.style={fill=\vtmlcolor,draw=\vtmlcolor},
+ use timeline header/.is if=vtimelinetitle,
+ use timeline header=false,
+ add bottom line/.is if=vtimebottomline,
+ add bottom line=false,
+ timeline title/.store in=\vtimelinetitle,
+ timeline title={},
+ line offset/.store in=\lineoffset,
+ line offset=4pt,
+}
+
+\NewEnviron{vtimeline}[1][]{%
+\setcounter{lines}{1}%
+\stepcounter{vtml}%
+\begin{tikzpicture}[column 1/.style={anchor=east},
+ column 2/.style={anchor=west},
+ text depth=0pt,text height=1ex,
+ row sep=1ex,
+ column sep=1em,
+ #1
+]
+\matrix(vtimeline\thevtml)[matrix of nodes]{\BODY};
+\pgfmathtruncatemacro\endmtx{\thelines-1}
+\path[timeline color st] 
+($(vtimeline\thevtml-1-1.north east)!0.5!(vtimeline\thevtml-1-2.north west)$)--
+($(vtimeline\thevtml-\endmtx-1.south east)!0.5!(vtimeline\thevtml-\endmtx-2.south west)$);
+\foreach \x in {1,...,\endmtx}{
+ \node[circle,timeline color st, inner sep=0.15pt, draw=white, thick] 
+ (vtimeline\thevtml-c-\x) at 
+ ($(vtimeline\thevtml-\x-1.east)!0.5!(vtimeline\thevtml-\x-2.west)$){};
+ \draw[timeline color st](vtimeline\thevtml-c-\x.west)--++(-3pt,0);
+ }
+ \ifvtimelinetitle%
+  \draw[timeline color st]([yshift=\lineoffset]vtimeline\thevtml.north west)--
+  ([yshift=\lineoffset]vtimeline\thevtml.north east);
+  %\node[anchor=west,yshift=16pt,font=\large]
+  % at (vtimeline\thevtml-1-1.north west) 
+  % {\textsc{Timeline \thevtml}: \textit{\vtimelinetitle}};
+ \else%
+  \relax%
+ \fi%
+ \ifvtimebottomline%
+   \draw[timeline color st]([yshift=-\lineoffset]vtimeline\thevtml.south west)--
+  ([yshift=-\lineoffset]vtimeline\thevtml.south east);
+ \else%
+   \relax%
+ \fi%
+\end{tikzpicture}
+}
+
+\section{Technological Context}
+
+The work in this thesis took place in the context of the technologies, devices and services available. As with any work related to HCI, an effort must be made to adapt to the changing consumer reality. The timeline in \figref{fig:timeline} outlines the technological changes that occurred around this work, which are reflected in the devices used for prototyping and evaluation.
+
+\begin{figure}[hbtp]
+\vspace{0.2in}
+\begin{vtimeline}[timeline color=cyan!80!blue, add bottom line, line offset=2pt, description={text width=12.5cm}, 
+ row sep=7ex, 
+ use timeline header,
+ timeline title={Technology}]
+Apr, 2010 & \textbf{Apple iPad} - a milestone in the development of tablet devices, leading to their widespread adoption.\endlr
+Sep, 2011 & \textbf{Nokia N9} - mobile phone used for development and evaluation of the Query by Tapping approaches discussed in \chapref{chap:qbt}.\endlr
+Nov, 2011 & \textbf{iCloud \& Music Lockers} - Apple, Google and others launch cloud music services, allowing users to store and listen to large volumes of music online.\endlr
+Feb, 2012 & \textbf{Kinect for Windows} - motion sensing device, capable of skeletal tracking, capturing 3D scene geometry and recognising user gestures, used for the augmented virtual reality work in \chapref{chap:vr}.\endlr
+Feb, 2013 & \textbf{Microsoft Surface} - tablet device functionality matches laptops, used for development of the engagement-dependent system in \chapref{chap:eng-dep}.\endlr
+Mar, 2013 & \textbf{Oculus Rift DK1} - developer kit of a virtual-reality headset, used for engagement-dependent interactions with virtual media in \chapref{chap:vr}.\endlr
+Mar, 2014 & \textbf{Android Wear} - wearable devices, such as smartwatches and Google Glass, become widely supported, offering compelling use cases for Query by Tapping.\endlr
+Jan, 2015 & \textbf{BeoSound Moment} - Bang \& Olufsen device launched, adopting the engagement-dependent approach and concepts, described in \chapref{chap:industrial}.\endlr
+Apr, 2015 & \textbf{Thesis Completion}\endlr
+\end{vtimeline}
+\caption[Technological context (timeline)]{Timeline of technological developments that occurred around this work.}
+\label{fig:timeline}
+\end{figure}
