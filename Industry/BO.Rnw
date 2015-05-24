@@ -126,5 +126,3 @@ print(x, table.placement="!b", sanitize.text.function = function(x) x, include.r
 fills = brewer.pal(10,"RdBu")[c(10,9,8)]
 ggplot(Hplays, aes(x=selection, y=meanentropy, fill=selection, ymin=meanentropy - 1.96*sdentropy,ymax = meanentropy + 1.96*sdentropy)) + geom_bar(position=position_dodge(.9),stat="identity") + facet_wrap( ~ feature) + geom_errorbar() + theme_bw(base_size = 12, base_family = "Helvetica") + scale_fill_manual(values=fills) + theme(legend.position="bottom") + theme(strip.background = element_rect(fill="white")) + xlab("selection type") + ylab("relative entropy %") 
 @
-
-\section{Survivorshop Curves}

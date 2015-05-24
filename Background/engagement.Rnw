@@ -60,6 +60,7 @@ Consideration of user engagement has covered not only the user's involvement in 
 \newpage
 
 \subsection{Models of Engagement}
+\label{sec:engmodels}
 \cite{LehLalYom12} argue that, given the complexity of the concept of user engagement, evaluators should adopt models, not metrics, of engagement. While time on task, dwell time, user clicks and other simple measures may seem attractive dependent variables for evaluation and experimentation, the effects seen require a great deal of interpretation. For example, increased time on task could indicate an inefficient retrieval interface, or alternately it could be the result of a user engaging with a compelling interface that afforded exploration. \cite{DupLal13} proposed absence time as a measure of engagement, hypothesising that engaged users will be more likely to regularly return to a service. They adopted Survival Analysis technqiues to model this behaviour, treating users' return visits to a service as comparable to patient deaths as typically modelled with survival and hazard functions. This approach is similar to the work in \chapref{chap:measures}, which considers how far a user `survives' into a track before deciding to skip. The use of survival analysis has also recently been introduced to the music retrieval field, in work by \cite{KapSunSri14} funded by Pandora. They use Last.fm and proprietary datasets of user listening history to classify users by their predicted return time, identifying users with low engagement that a business should target.
 
 \subsection{Focus \& Control}

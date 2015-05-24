@@ -1,0 +1,73 @@
+\section{Survival Analysis of a Music Startup}
+
+<<survival-setup>>=
+require(dplyr)
+require(tidyr)
+require(scales)
+SurvivalLogs <- read.csv('../data/SurvivalLogs.csv')
+
+# Set a time window so we can discard bad timestamps
+start_t = 1325376000
+end_t = 1431993600
+
+SurvivalLogs <- SurvivalLogs %>% 
+  filter(FirstTime > start_t, LastTime < end_t) %>%
+  mutate(JoinDay = floor((FirstTime - start_t)/86400),
+         Death = floor((LastTime - start_t)/86400)) %>%
+  arrange(FirstTime)
+
+all_days <- seq(min(SurvivalLogs$JoinDay),max(SurvivalLogs$Death))
+
+cohorts <- c(100,300,500)
+cohort_window <- 20
+cohort_size <- 30000
+
+cohortdf <- SurvivalLogs %>% 
+  # Get three cohorts of users, split 200 days apart, with one at the 500 days mark
+  filter((JoinDay > cohorts[1] - cohort_window/2 & JoinDay < cohorts[1] + cohort_window/2) | 
+           (JoinDay > cohorts[2] - cohort_window/2 & JoinDay < cohorts[2] + cohort_window/2) | 
+            (JoinDay > cohorts[3] - cohort_window/2 & JoinDay < cohorts[3] + cohort_window/2)) %>%
+  mutate(Cohort = floor(JoinDay / 200)) %>%
+  group_by(Cohort) %>% 
+  # Take n users from each cohort
+  sample_n(cohort_size)
+
+require(survival)
+survmodel <- survfit(Surv(Death)~factor(Cohort+1), data=cohortdf, conf.type="log")
+@
+
+User engagement with a service can be measured in terms of their continued usage. One proposed approach to measuring this is through the use of Survival Analysis, as discussed in \secref{sec:engmodels}. The work by \cite{DupLal13} and \cite{KapSunSri14} sought to capture the return time of users, linking frequent returns to high engagement. This section explores the use of Survival Analysis to indicate the `health' of a service over time. 
+
+A dataset of logs for \Sexpr{prettyPrint(signif(nrow(SurvivalLogs)/1000000,2))} million users was made available by a music retrieval startup, covering a period of $3.5$ years. The survival times of each unique user was acquired from these logs, i.e. the length of time until their final use of the service. The service was discontinued at the end of the logging period, thus there is no issue of `censoring' where some data is missing due to some users still being `alive'. The rate at which users joined and left the service can be seen in \figref{fig:survival-population}, which depicts cumulative joins and `deaths' as well as the size of the user population over time. A key point of interest is annotated at $t = 500$ days, where the rate of users joining and leaving the service increases for a period, with the user population declining thereafter. 
+
+<<survival-population, dev='png', fig.scap="Changes in the population size of a music service's users", fig.cap="Cumulative histograms (top) depict the users joining the service and the `deaths' as users leave the service. The population plot (bottom) shows the changes in the user population size over time.", fig.height=5, fig.width=7, fig.pos='btph', dependson=c("survival-setup")>>=
+population <- data.frame(joins=ecdf(SurvivalLogs$JoinDay)(all_days)*nrow(SurvivalLogs),
+                         deaths=ecdf(SurvivalLogs$Death)(all_days)*nrow(SurvivalLogs)) %>%
+  mutate(population=joins-deaths,
+         day=all_days) %>%
+  gather("histogram","users",1:3) %>% 
+  # Weird bug makes gather become 'variable' and 'value' when in knitr
+  rename(histogram=variable, users=value) %>%
+  mutate(sep=ifelse(histogram=='population',"Population","Cumulative Histograms")) # Remember to put population histogram separate
+
+ggplot(population, aes(day, users, colour=histogram)) + geom_line() +
+  geom_vline(xintercept=500) +
+  theme_bw(base_size = 12, base_family = "Helvetica") + theme(legend.position="bottom") + theme(strip.background = element_rect(fill="white")) +
+  scale_y_continuous(labels = comma) +
+  scale_x_continuous(breaks=c(0,250,500,750,1000)) +
+  theme(legend.title=element_blank()) + 
+  facet_wrap(~ sep, ncol=1, scales="free_y")
+@
+
+\subsection{Modelling Hazard and Survival}
+Further detail can be gained by investigating \emph{cohorts} of users, where users joined the service around the same time. This approach is inspired by similar analyses of animal populations, where survivorship curves capture the animals' survival probabilities over their lifetimes. Three cohorts were used to investigate the changes in how users engaged with music service, with each cohort representing a period of \Sexpr{prettyPrint(cohort_window)} days around a point in the service's lifetime (\Sexpr{cohorts} days). For each cohort, \Sexpr{prettyPrint(cohort_size)} users were sampled from the period to ensure equivalent comparison.
+
+<<survival-survivorship, dev='png', fig.scap="Survival function for a music service startup", fig.cap="The survival function captures the proportion of users still active for each cohort. The earlier cohorts have an adoption rate >40\\%, which tails off slowly. The 500 days cohort has a much lower adoption rate, immediately dropping to less users than remain from the earliest cohort.", fig.height=6, fig.width=7, fig.pos='btph', dependson=c("survival-setup")>>=
+plot(survmodel, lty=1:3, col=2:4, ylab='Survival Function S(t)', xlab='t', fun=function(x) ifelse(x==1,NA,x))
+legend(800, 0.95, paste(cohorts, "Days Cohort"), lty = 1:3, col=2:4)
+@
+
+<<survival-hazard, dev='png', fig.scap="Cumulative hazard function for a music service startup", fig.cap="The cumulative hazard function captures the hazard or risk of leaving that each user is exposed to over their lifetime. The 500 days cohort is immediately exposed to a greater risk of leaving than the accumulated hazards from the previous cohorts.", fig.height=6, fig.width=7, fig.pos='btph', dependson=c("survival-setup")>>=
+plot(survmodel, col=2:4, lty=1:3, fun="cumhaz", xlab="Days", ylab="Cumulative Hazard H(t)")
+legend(0, 10, paste(cohorts, "Days Cohort"), lty = 1:3, col=2:4)
+@

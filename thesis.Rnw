@@ -155,6 +155,9 @@ prettyProb <- function(x) {
 <<child-BO, child='Industry//BO.Rnw'>>=
 @
 
+<<child-Survival, child='Industry//Survival.Rnw'>>=
+@
+
 <<child-VR, child='VR//vr.Rnw'>>=
 @
 
