@@ -8,6 +8,8 @@ cache/
 figure/
 
 ### LaTeX files
+*.bbl
+*.blg
 *.tex
 *.aux
 *.log
