@@ -1,0 +1,77 @@
+<<understanding-setup, cache=TRUE, echo=FALSE>>=
+library(RSQLite)
+con <- dbConnect(SQLite(), dbLocation)
+playlist_count <- dbGetQuery(con, "SELECT COUNT(*) FROM lastfmplaylists;")
+user_count <- dbGetQuery(con, "SELECT COUNT(*) FROM lastfmusers;")
+track_count <- dbGetQuery(con, "SELECT COUNT(*) FROM tracks;")
+dc <- dbDisconnect(con)
+@
+
+\chapter{Measures of Music Listening Behaviour}
+\label{chap:measures}
+
+\lettrine{U}{nderstanding} how listeners interact with music retrieval systems is of fundamental importance to the field of Music Information Retrieval. The design and evaluation of such systems is conditioned upon assumptions about users, their listening behaviours, and their interpretation of music. While user studies have offered guidance to the field thus far, they are mostly exploratory and qualitative \citep{WeiGua11}. The availability of quantitative metrics would support the rapid evaluation and optimisation of music retrieval. This chapter develops an information-theoretic approach to measuring users' music listening behaviour, with a view to informing the development and evaluation of music retrieval systems. To demonstrate the use of these measures, a dataset `Streamable Playlists with User Data' \textit{(SPUD)} was compiled, comprising \Sexpr{prettyPrint(playlist_count$COUNT)} playlists from Last.fm\footnote{\url{http://www.last.fm}} produced by \Sexpr{prettyPrint(user_count$COUNT)} users, with track metadata including audio streams from Spotify.\footnote{\url{http://www.spotify.com}} This dataset was combined with the mood and genre classification of Syntonetic's Moodagent,\footnote{\url{http://www.moodagent.com} Last accessed: 30/04/14} yielding a range of intuitive music features to serve as examples.
+
+\section{The \textit{SPUD} Dataset}
+%TODO update counts!!!
+The \textit{SPUD} dataset of \Sexpr{prettyPrint(playlist_count$COUNT)} playlists was produced by scraping the information from Last.fm users who were active throughout March and April, 2014. The tracks for each playlist are also associated with a Spotify stream, with scraped metadata, such as artist, popularity, duration etc. The number of unique tracks in the dataset is \Sexpr{prettyPrint(track_count$COUNT)} from \Sexpr{prettyPrint(user_count$COUNT)} users. The distribution of playlist lengths is shown in \figref{fig:playlists-histogram}. The dataset is augmented with proprietary mood and genre features produced by Syntonetic's Moodagent. This is done to provide high-level and intuitive features which can be used as examples to illustrate the techniques being discussed. It is clear that many issues remain with genre and mood classification \cite{Stu14} and the results in this work should be interpreted with this in mind. The aim in this work is not to identify which features are best for music classification but to contribute a general approach for gaining an additional perspective on proposed music features. Another dataset of playlists \textit{AOTM-2011} is published \cite{McFLan12} however the authors only give fragments of playlists where songs are also present in the Million Song Dataset (\textit{MSD}) \citep{BerEllWhi11}. The \textit{MSD} provides music features for a million songs but only a small fraction of songs in \textit{AOTM-2011} were matched in \textit{MSD}. The \textit{SPUD} dataset is distinct in maintaining complete playlists and having time-series data of listening behavour. %\vspace{-0.08in}
+
+<<playlists-histogram, eval=TRUE, dev='png', fig.cap="Distribution of playlist lengths in acquired dataset", fig.height=4.5, fig.width=7, fig.pos='hbtp', dependson=c("playlists-setup")>>=
+library(ggplot2)
+con <- dbConnect(SQLite(), dbLocation)
+data <- dbGetQuery(con, "SELECT * FROM lastfmplayliststracks;")
+lengths <- data.frame(t(table(data$playlist)))
+ggplot(lengths, aes(x=Freq)) + geom_histogram(binwidth=1, alpha=0.7) +
+  #geom_density() + aes(y=..count..) +  
+  scale_x_continuous(lim=c(1,200)) + xlab("Playlist Length (in songs)") + ylab("Number of Playlists") +
+  theme_bw(base_size = 12, base_family = "Helvetica") + 
+	theme(panel.border=element_blank())
+@
+
+\section{Measuring User Interaction}
+\label{measures:interaction}
+By combining the detailed listening histories acquired from Last.fm, with the song durations acquired from Spotify, it is possible to derive a number of measures about the user's interaction with their music retrieval system. Adding a song's duration to the time its playback started gives an indication of when the song would end without further intervention. Where a new song begins immediately after the expected end of a previous song, this is indicative of automatic playback such as playlists or albums -- evidence of a lack of user intervention. Songs which are interrupted early by a subsequent song, or which are followed by another song after a brief pause are evidence of the user intervening to find new music to listen to. 
+
+The \textit{SPUD} dataset includes both listening histories and song durations for Last.fm users, which are used here to illustrate a number of measures and their relationships. This section explores how much of the user's music listening behaviour can be characterised in a generalised fashion, using only these interaction timestamps as opposed to the use of audio features explored later in \chapref{chap:info-theo}. For the sake of clarity, these measures are defined using Iverson notation as popularised by \cite{GraKnuPat94}.
+
+\subsection{Album-Based Playback}
+Despite the shift to digital music consumption, listening to music in the form of albums remains a common music-listening behaviour. It is useful to identify where users are listening to an album, as this provides a clear signal that the user is not selecting each individual track, or using a radio-like music retrieval. Detecting album-based selection behaviour from music listening logs is trivial, as consecutive tracks will have the same album metadata $A_s$. It is assumed in this work that where consecutive tracks are played from the same album, this was due to their being from the same album. The ordering of tracks on the album is not considered, as this would introduce a confound with shuffle versus sequential playback. The detection of selection being an \textit{Album}-based behaviour is thus:
+\begin{align*}
+Album &= \frac{1}{(n-1)} \sum\limits_{s=2}^n [A_s \equiv A_{s-1}].
+\end{align*}
+
+As this value is the average of a set of Boolean values, its results are in the range $[0,1]$. It indicates the proportion of tracks listened to that were played due to being from the same album as the preceding track. For this reason, the first track is not included as it could not be based on a preceding album. Even in entirely album-based listening, subsequent albums are likely to be selected, representing some interaction by the user. As such, it is unlikely for $Album=1$. This behaviour could be changed by only considering selections in the current listening session, as done in the following measures. 
+
+\subsection{Interventions}The intervention made by a user where the song is changed before it completes playback is termed \textit{Skipping}. Where a user hesitates after the completion of a song, in the act of manually choosing the next song, this is indicative of \textit{Selecting} behaviour. These behaviours can be captured by comparing the timestamps logged when a track begins playing against the expected durations for those tracks. For a song $s$ with start time $t_s$, song duration $d_s$ and subsequent song start time $t_{s+1}$, the deviation $\Delta t_s$ from the expected song playback timestamps is:
+\begin{align*}
+\Delta t_s &= t_{s+1} - (t_s + d_s).\\
+\intertext{Considering the sign and magnitude of this deviation gives an insight into whether there were human delays or interventions, as opposed to immediate automatic playback of the next track at the end of the current one:}
+Skipping &= \frac{1}{n-1} \sum\limits_{s=1}^{n-1} \left[ \Delta t_s < 0 \right].\\
+\intertext{It is assumed that automatic song playback would occur within a threshold of $t_{a} = 100ms$ of the previous song ending. It is also assumed that a user would intervene to switch or select a new song within a threshold of $t_{t} = 30s$, yielding:}
+Switching &= \frac{1}{n-1} \sum\limits_{s=1}^{n-1} \left[ \Delta t_s > t_a \land \Delta t_s < t_t \right].
+\end{align*}
+
+The assumed value for $t_t$ is conservative to ensure that the measured pauses are part of a continuous music retrieval interaction. The aim is to detect whether a song was selected automatically or by manual intervention; delays greater than $30s$ become increasingly likely to be due to external events, for example the user pausing music playback or the end of a music listening session. 
+
+User intervention in music listening can be considered as a Bernoulli process, i.e.\ a binary choice between whether a user selected each song or the selection was part of automatic playback. The examples in this work consider users across all their listening sessions, with the assumption that interventions are part of a homogenous process (with fixed probability). In practice, user behaviour will inevitably change with their listening context, however these assumptions still allow for a user's overall behaviour to be modelled. Users can thus be characterised in terms of their \textit{Intervention Rate} -- the rate at which they intervene with a \textit{Skipping} or \textit{Switching} event. 
+
+\subsection{Speed}
+While the occurrence of an intervention may provide some information about music-listening behaviour, it was hypothesised that the speed at which users intervene may add further detail. To explore this, two measures were proposed: \textit{Switching speed} -- how quickly a user switches to a new track after a previous track ends, and \textit{Skip speed} -- how far, proportionally, into a song does a user decide to skip track. In the case of \textit{Skipping}, the time taken was normalsied against track length, given the large variation in track durations. To mitigate the effect of large outliers where a track nearly completed, the harmonic mean of time is used. As speed was the measure of interest, the reciprocal is taken, yielding a simple equation. Considering only the $n$ songs where a \textit{Skipping} event has been detected:
+\begin{align*}
+Skip\ speed &= \frac{1}{n-1} \sum\limits_{s=1}^{n-1} \frac{d_s}{\Delta t_s}.
+\intertext{\textit{Switch speed} can be calculated in a similar manner. Considering only the $n$ songs where a \textit{Switching} event has been detected:}
+Switch\ speed &= \frac{1}{n-1} \sum\limits_{s=1}^{n-1} \frac{1}{\Delta t_s}.
+\end{align*}
+
+\subsubsection{On the use of the harmonic mean}
+When considering a rate, such as speed, one would typically use the harmonic rather than arithmetic mean. The harmonic mean of speed $\bar{S}_H$ is the reciprocal of the arithmetic mean of time. The measure of interest however is not the average speed as taken across all of the interaction time (as captured by $\bar{S}_H$) but is the expectation of the speed taken in a given selection. The arithmetic mean of selection speeds is desirable then:
+\begin{align*}
+\bar{S} &=\frac{1}{n} \sum\limits_{s=1}^n \frac{1}{\Delta t_s}.\\
+\intertext{It is notable that the reciprocal of this speed $\bar{S}$ is the harmonic mean of $t_s$:}
+\frac{1}{\bar{S}} &= \frac{n}{\sum\limits_{s=1}^n \frac{1}{\Delta t_s}}.
+\end{align*}
+Unlike the arithmetic mean of time, the harmonic mean of $t_s$ is robust against slow outliers where a large time was taken (e.g. skipping as a song is nearly complete). 
+%\newpage
+
+<<child-demo, child='questionnaire.Rnw'>>=
+@

@@ -1,0 +1,47 @@
+% Position text on same point of page as the pre-defined Abstract style.
+%\topskip0pt
+%\vspace*{1.75in}
+\vspace*{\fill}
+\begin{center} {\bf Acknowledgements}
+
+\begin{tabular}{l}
+%\setlength{\leftskip}{3cm}
+I would like to thank - \\
+
+%\setlength{\leftskip}{4cm}
+\hspace{0.4in} my wife, Estelle, for her patience,\\
+
+\hspace{0.4in} my supervisor, Roderick, for his advice,\\
+
+\hspace{0.4in} my colleagues, Mark and Ross, for their collaboration,\\
+
+\hspace{0.4in} my friend, Melissa, for her kindness,\\
+
+\hspace{0.4in} and you, reader, for your interest.\vspace{0.2in}\\
+
+This work was supported by the University of Glasgow,\\ Bang \& Olufsen and the Danish Council for Strategic Research.
+\end{tabular}\end{center}
+\vspace*{\fill}
+\newpage
+
+%\vspace*{1.75in}
+
+\vspace*{\fill}
+\begin{center}{\bf Author's Declaration}\end{center}
+I declare that, except where explicit reference is made to the contribution of others, this dissertation is the result of my own work and has not been submitted for any other degree at the University of Glasgow or any other institution.
+
+\vspace*{0.75in}\hfill Daniel Boland\vspace*{0.25in}
+\vspace*{\fill}
+\newpage
+
+%\vspace*{1.75in}
+\vspace*{\fill}
+\begin{center}{\bf Collaborations}\end{center}
+
+In \chapref{chap:eng-dep} and \chapref{chap:industrial}, Ross McLachlan and I jointly developed the initial concept for the prototype that was adopted and further developed to become the BeoSound Moment product. I contributed an engagement-dependent inferential model of music queries, to underpin the music recommendation. Ross incorporated design insight on the use of pressure, jointly developing the interface to include the pressure modality. A small design session was held by Ross to capture qualitative feedback. Subsequent analyses were performed independently.
+
+In \chapref{chap:vr}, I contributed an engagement-dependent approach to blending Virtual Reality and some computer vision filters for use with a video pass-through head mounted display. Mark McGill implemented the study conditions in the Virtual Reality environment and conducted the study. Subsequent analyses were performed independently.
+
+In appendix \ref{chap:pressuresensing}, I implemented a pressure sensor and low-pass filter, the dynamics of which were optimised to maximise throughput in a Fitts' task. The experimental protocol was jointly designed with Ross McLachlan, who used his existing software to conduct the study. Subsequent analyses were performed independently.
+\vspace*{\fill}
+%\setlength{\leftskip}{0cm}

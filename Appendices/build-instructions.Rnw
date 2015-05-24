@@ -1,0 +1,8 @@
+\chapter{Building This Thesis}
+\label{buildinfo}
+
+\section{R Environment \& Packages}
+\cite{R}
+
+\chapter{Accompanying Data}
+\section{Database schema}

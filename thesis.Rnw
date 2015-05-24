@@ -1,5 +1,5 @@
-%\documentclass[hidelinks,nogutter]{glasgowthesis}
-\documentclass[hidelinks,gutter]{glasgowthesis}
+\documentclass[hidelinks,nogutter]{glasgowthesis}
+%\documentclass[hidelinks,gutter]{glasgowthesis}
 \usepackage{emptypage}
 \usepackage{graphics}
 \usepackage{graphicx}
@@ -44,11 +44,8 @@
 \newcommand{\secref}[1]{section \ref{#1}}
 \newcommand{\chapref}[1]{chapter \ref{#1}}
 
-%\usepackage{mathtools}
-%\DeclarePairedDelimiter{\evdel}{\langle}{\rangle}
-%\newcommand{\ev}{\operatorname{E}\evdel}
-
-\input{dannystyles.tex}
+<<child-styles, child="dannystyles.Rnw">>=
+@
 \graphicspath{{img/}}
 
 \begin{document}
@@ -63,7 +60,7 @@ thesis_theme <- theme_bw(base_size = 12, base_family = "Helvetica") +
   theme(panel.border = element_blank(), panel.grid=element_blank()) + 
   theme(legend.position="bottom") 
 
-dbLocation <- "C:/syntonetic/bigmusic.db"
+dbLocation <- "../data/spud.sqlite"
 
 # Format numbers to 2 decimal places
 prettyPrint <- function(value){
@@ -93,19 +90,20 @@ prettyProb <- function(x) {
 
 \cleardoublepage
 
-\input{abstract.tex} 
-%\addcontentsline{toc}{chapter}{Abstract}
-
+<<child-abstract, child="abstract.Rnw">>=
+@
 \cleardoublepage
 
-\input{acknowledgements.tex} 
-%\addcontentsline{toc}{chapter}{Acknowledgments}
+<<child-acknowledgements, child="acknowledgements.Rnw">>=
+@
 \cleardoublepage
 
 %Publications list - bibtex doesn't know to run on bu1.aux, remember to do it manually.
-\begin{bibunit}[plainnat]
-\nocite{BolMclMur15, McGBolMur15,  BolMur15, BolMur14, MclBolBre14, BolMur13, BolMclMur13}
+\begin{bibunit}[unsrtnat]
+\setlength{\bibsep}{5pt plus 1ex}
+\nocite{BolMclMur15, BolMur15, McGBolMur15,  BolMur14, MclBolBre14, BolMur13, BolMclMur13}
 \renewcommand{\bibname}{List of Contributing Publications}
+\vspace{-1in}
 \putbib[mypubs]
 \end{bibunit}
 \cleardoublepage
@@ -123,39 +121,58 @@ prettyProb <- function(x) {
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-\input{introduction.tex}
-\input{timeline.tex} 
+<<child-introduction, child="Introduction//introduction.Rnw">>=
+@
 
 \bookmarksetup{numbered}
 
 \part{Background}
 \label{part:background}
-\input{background//background.tex}
+<<child-MIR, child="Background//MIR.Rnw">>=
+@
+
+<<child-engagement, child="Background//engagement.Rnw">>=
+@
 
 \part{Understanding Music Listening}
 \label{part:understanding}
-<<child-demo, child='understanding//understanding.Rnw'>>=
+<<child-measures, child="Understanding//measures.Rnw">>=
+@
+
+<<child-infotheo, child="Understanding//infotheo.Rnw">>=
 @
 
 \part{Designing for Engagement in Music Retrieval}
 \label{part:engagement}
-%\input{"loweng//casual.tex"}
-<<child-tapping, child="loweng//tapping.Rnw">>=
-
-<<child-engdep, child='engdep//engdep.Rnw'>>=
+<<child-tapping, child="Design//tapping.Rnw">>=
 @
 
-
+<<child-engdep, child="Design//engdep.Rnw">>=
+@
 \part{Outlook \& Beyond Music}
 \label{part:beyond}
 
-<<child-conclusions, child='industrial.Rnw'>>=
+<<child-BO, child='Industry//BO.Rnw'>>=
 @
 
-<<child-conclusions, child='vr//vr.Rnw'>>=
+<<child-Survival, child='Industry//Survival.Rnw'>>=
+@
+
+<<child-VR, child='VR//vr.Rnw'>>=
 @
 
 <<child-conclusions, child='conclusions.Rnw'>>=
+@
+
+\appendix
+\addcontentsline{toc}{part}{Appendices}
+<<child-pressure-appendix, child='Appendices//pressure.Rnw'>>=
+@
+
+<<child-questionnaire-appendix, child='Appendices//questionnaire-appendix.Rnw'>>=
+@
+
+<<child-build-appendix, child='Appendices//build-instructions.Rnw'>>=
 @
 
 \addcontentsline{toc}{part}{Bibliography}
@@ -163,15 +180,4 @@ prettyProb <- function(x) {
 \bibliographystyle{plainnat}
 \bibliography{thesis}
 
-\appendix
-\addcontentsline{toc}{part}{Appendices}
-
-<<child-questionnaire-appendix, child='understanding//questionnaire-appendix.Rnw'>>=
-@
-
-<<child-build-appendix, child='build-instructions.Rnw'>>=
-@
-
-<<child-pressure-appendix, child='engdep//pressure.Rnw'>>=
-@
 \end{document}

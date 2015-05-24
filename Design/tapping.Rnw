@@ -1,0 +1,372 @@
+\chapter{Query By Tapping}
+\label{chap:qbt}
+\lettrine{R}{hythm} is a musical universal. This chapter explores the use of rhythmic queries, with a view towards creating a low--engagement music retrieval interaction. As aspects of rhythmic perception are universal across listeners (as noted in \secref{sec:musicuniversals}), this chapter explores the hypothesis that it should be possible to create a \emph{Query by Tapping} (\emph{QbT}) music retrieval system with a high degree of correspondence with users' mental models of query production. A study of rhythmic querying is conducted, finding a surprisingly high degree of subjectivity in how users reproduce musical rhythm, with subsequent development of a generative model of rhythmic queries. This model is then incorporated into a demo music retrieval system, along with novel methods for interpreting rhythmic queries and inferring relevant musical works. The system is implemented on a mobile device, to allow users to search for music by tapping a song's rhythm or general tempo onto the device, detected by capacitive touchscreen or accelerometer. The generative query model can be trained to an individual user, capturing their style of rhythmic query, and underpins a user-centered approach to \emph{QbT} systems. An experiment is conducted, to demonstrate the benefit of the use of a trained generative model over existing approaches. Feedback from participants is then acquired, being generally positive and including a suggested use case for in-pocket mobile interaction.\newpage
+
+%\section{Introduction}
+%This chapter develops a user-centered approach to using rhythmic input for sorting music, supported by a Bayesian approach to modeling the user's music-listening intent.  
+
+%Our approach involves a Bayesian combination of evidence about the user's intended song from the rhythmic pattern and tempo of their query. The system orders the music collection according to the inferred belief about the user's intent, presenting the intended song and other songs with similar tempo or rhythmic properties. The approach outlined sets a foundation for incorporating additional sources of evidence.
+ 
+%As a demonstrator for the techniques discussed in this paper, we present a mobile phone interface for searching music by tapping the music's rhythm or general tempo onto the device, detected by accelerometer, as depicted in figure \ref{fig:pocket}. This system allows for a casual style of music interaction, allowing the user to assert control over their mobile music player without needing to remove it from their pocket.
+
+%\section{Rhythmic Input}
+The way listeners comprehend and reproduce rhythm is fundamental to music and universal across cultures, as discussed in \secref{sec:musicuniversals}. Tapping along to the rhythm of a song is a common sign of listener engagement with music. Exploiting this predisposition to tapping rhythm as a form of music retrieval would allow for music selection on a device with very limited sensing ability -- a microphone, button or single capacitive sensor would suffice. As a large proportion of music listening occurs in mobile contexts, and mobile devices are now instrumented with a variety of sensing capabilities, mobile listening is a compelling use case for \emph{QbT}. In particular, mobile \emph{QbT} would free users from having to remove their mobile music player from their pocket when influencing their music playback.
+
+In \cite{SapHarBen11}, capacitive sensors were able to detect touch input through fabric, supporting gestural input including drawn letters. While this input modality could support explicitly `typing' a music query, this would require a high degree of \emph{interaction engagement} from users. Users would have to engage in a more tightly-coupled interaction loop to type a query than would be needed with rhythmic querying, i.e.\ having to think of an exact track and spelling it rather than casually tapping a beat. \cite{ManFuk12} showed that tapping input can now also be detected via headphones, making it an ideal input modality for mobile music-listening contexts. Minimising the technological footprint of an interaction in this way not only lowers cost but also frees designers from the encumberance of integrating displays, keyboards etc.\ into a music retrieval system.
+
+%This section considers existing efforts to implement a system of retrieving music by tapping a song's rhythm and also recent developments in the detection of the music event onsets which underpin any such system. 
+
+\subsection{Existing Efforts}
+
+The retrieval of a musical work by tapping its rhythm is a problem that has received some consideration in the Music Information Retrieval community. The term was introduced in \cite{JanLeeYeh01}, which demonstrated that rhythm alone can be used to retrieve musical works, with their system yielding a top 10 ranking for the desired result 51\% of the time. Their music corpus consisted of MIDI representations of tunes such as \emph{You are my sunshine}, which is unlikely to represent the type of popular music a user would wish to retrieve. The work was also limited in considering only monophonic rhythms, i.e.\ the rhythm from only one instrument, as opposed to being polyphonic and comprising of multiple instruments. The failure to consider polyphonic rhythm (comprising of multiple voices/instruments) is a major limitation of prior \emph{QbT} systems. Such systems use  one rhythmic sequence as being the de facto rhythm for a musical work, requiring that all users tap a musical rhythm in the same way. This issue extends even to evaluation, with queries used for \emph{QbT} evaluations in MIREX generated by people trained to produce rhythm a particular way. After the publication of the work in this chapter \citep{BolMur13}, \cite{KanKimHer13} built a \emph{QbT} dataset from trained participants that is now used in MIREX, and noted that participants ``wanted to tap their instrument's part instead.'' 
+
+The potential of rhythmic interaction has been recognised in Human Computer Interaction \citep{LanMur04,Wob09}, for example with \cite{GhoFauHuo12} introducing rhythmic queries as a replacement for hot-keys. In \cite{CroMur06}, tempo is used as a rhythmic input for exploring a music collection -- indicating that users enjoyed such a method of interaction. The consideration of human factors is also an emerging trend in Music Information Retrieval, as discussed in \chapref{chap:mir}. This work draws upon both these themes, being the first \emph{QbT} system to adapt to users. 
+
+A number of key techniques for \emph{QbT} are introduced in \cite{Han09}, which describes rhythm as a sequence of time intervals between notes -- termed \emph{inter-onset intervals (IOIs)}. They identify the need for such intervals to be defined relative to each other to avoid the user having to exactly recreate the music's tempo. In previous implementations of \emph{QbT}, each \emph{IOI} is defined relative to the preceding one \citep{Han09}. This sequential dependency compounds user errors in reproducing a rhythm, as an erroneous \emph{IOI} value will also distort the subsequent one. The approach to rhythmic interaction in \cite{GhoFauHuo12} however used k-means clustering to classify taps and \emph{IOIs} into three classes based on duration. Their clustering based approach avoids the sequential error however loses a great deal of detail in the rhythmic query. Applying a clustering approach to musical queries would need a greater number of clusters to be identified.
+
+\subsection{Onset Detection}
+In order to compare user queries against a music library, one must compute the intervals (\emph{IOIs}) between the rhythmic events within the music. Onset detection is the task of finding such events and has been studied at length within the field of Music Information Retrieval. An evaluation of onset detection algorithms in \cite{BoeKreSch12} showed the most precise onset detection method reviewed was their variant of the `spectral flux' technique introduced by \cite{Mas96}, which measures how quickly the power spectrum of a signal is changing. They also discuss the benefits of adaptive whitening introduced in \cite{StoPlu07} which adaptively normalises frequency bands' magnitudes to improve onset detection in music with highly varying dynamics, such as the rock music used in this work. 
+
+These off-the-shelf onset detection techniques are applied to the audio of the tracks users could query, and update the existing work on \emph{QbT} to a state-of-the-art implementation. The onsets acquired from audio are used as a baseline, along with professionally annoted music onsets. The \emph{QbT} techniques developed in this chapter are applied to both the audio-derived and annotated onsets, and the evaluations are conducted using both. Though the comparison with the audio-derived onsets provides a context within which to view the potential results shown using annotated onsets, it is the comparison between the results using the annotated onsets that provide an insight into the developments in this chapter.
+
+\begin{figure}[t!]
+\centering
+\includegraphics[width=0.7\columnwidth, right]{tap-phone}%TODO: Fix image size
+\caption[Mobile phone based Query by Tapping interaction]{Participants entered rhythmic queries by tapping the capacitive touchscreen of a Nokia N9 mobile phone. The timing of these taps was logged, to enable comparison between users' queries for a given song, as well as against annotated musical scores.}
+\label{fig:N9}
+\end{figure}
+
+\section{Initial Study}
+An exploratory study was conducted, eliciting rhythmic queries from participants to explore the feasibility of music filtering using rhythmic queries. 10 European students were recruited as participants to produce rhythmic queries of songs, which they selected from a corpus of $~1000$ songs. The corpus was collected from participants' own MP3 music collections and combined, with the same corpus then presented to all participants. These music files were also used to obtain the \emph{IOIs} from audio, using the state-of-the-art onset detection techniques discussed previously. The rhythmic queries were entered by the participant tapping on the touchscreen of a Nokia N9 (as in \figref{fig:N9}), which had been configured to record the time intervals between taps. The queries provided by the users were compared using the techniques described later in \secref{sec:rhythmicsystem}. For this initial study, the phone screen remained blank. Users were instructed to select a song from a printout of the files in the corpus and then to ``tap the rhythm of the song on the touchscreen, in order to select that piece of music.''
+
+One aim of this initial data collection was to investigate the way in which the participants produced their rhythmic queries, without guidance from the experimenter. This is in contrast to previous approaches, where rhythmic query onsets were acquired after instructing users to only reproduce the vocal lead track. Though informal, this query collection study enabled a discussion with users about how they were producing their queries, as well as follow-up questions post-hoc.
+
+\subsection{Inter-Participant Variability}
+As an initial sanity check, the queries produced by multiple participants for the same song were compared against each other. Surprisingly, little similarity was identified for a large number of the songs. In discussions with the participants, it became apparent that a variety of strategies were employed when annotating the rhythm of a piece of music. In particular, participants identified particular instruments which they would entrain with -- annotating those instruments' onset events when available. Participants were also not equally detailed when producing the queries, with some using fewer taps than others to represent the same rhythm in a piece of music. A depiction of how participants might sample from the available instrument onsets is given in figure \ref{fig:onsets}. A well known but nonetheless significant further complication is that users often query from different parts of a song, and this behaviour was also apparent amongst the participants.
+
+\begin{figure*}[t!]
+\centering
+\includegraphics[width=\textwidth]{onsets}%TODO: Fix image size
+\caption[Example of user sampling from instruments to produce a query]{Users construct queries by sampling from preferred instruments. User 1 prefers Vocals and Guitar whereas User 2 prefers Drums and Vocals.}
+\label{fig:onsets}
+\end{figure*}
+
+%The queries were compared against the entire corpus and a belief about the user's intent for each song was inferred. It was expected that rhythmic queries would at the very least improve the belief about the target song. An additional metric is to rank the songs in terms of this belief, with the intended song ideally ranking first. In this case only 68\% of the queries collected led to an increase in belief about the target song, indicating that the corpus entries for the remaining 32\% did not match the users' queries. This reinforces the observation that users do not annotate rhythm in the same way as each other, or indeed as the onset detection algorithm.
+%\newpage
+
+The observations made in this initial study indicate that music retrieval using rhythmic queries is much more complex than was originally expected. In particular, there is a need for learning the user-specific habits in producing rhythmic queries. The conversations with participants provided some insight into how their tapping strategy may be modelled, with their affinities for the various instruments and their verbosity identified as important features. Instrument affinity can be captured as a list of the available instruments, ordered in terms of priority. Participants stated that they switched instruments when their preferred instrument became available. Query verbosity is more difficult to model, the next section turns again to the music psychology literature to identify `referent period' as a means of capturing the user's degree of verbosity.
+
+The work in this chapter explores the use of these features to construct a generative model of a user's queries, addressing the variance in user query production and allowing input queries to be predicted and thus matched. An alternative approach however would be to provide instruction or feedback to the user about how to tap rhythmic queries in a way that the system understands. 
+
+\section{Exemplar System}
+\label{sec:rhythmicsystem}
+
+\begin{figure}[!b]
+\centering
+\includegraphics[width=0.75\columnwidth]{poser}%TODO: Fix image size
+\caption{Music can be shuffled by tapping a rhythm on the mobile device, allowing for casual music interaction.}
+\label{fig:rhythmicsystem}
+\end{figure}
+
+It is common when interacting with music systems to be presented with a list of retrieved music, perhaps as a playlist, which is then played sequentially. Rhythmic queries can be used to infer a belief over a music collection about which songs the user wishes to listen to. This section documents the development of a mobile interaction that allows a user to `shake up' a list of music by tapping the desired rhythm onto their device, with the music then being sorted by rhythmic similarity. The user can then play through the resulting playlist arranged by these features or proceed to select their intended song. One example use case is shown in \figref{fig:rhythmicsystem}, where a user enters a rhythmic query without removing the mobile device from their pocket. This interaction highlights the flexibility of rhythmic queries, allowing users to find songs of a given tempo or with certain rhythmic properties or to simply select a specific song. A mobile demonstrator system is implemented and evaluated quantitatively as well as qualitatively with Singaporean users, demonstrating its viability and cross-cultural application.
+\newpage
+
+\begin{figure}[!b]
+\centering
+\includegraphics[width=0.7\columnwidth]{interface}%TODO: Fix image size
+\caption[Query by Tapping system behaviour]{Music playlist initially sorted alphabetically (left) and after a query for an upbeat rock song ``Any Way You Want it'' (right). The font size of the intended track is scaled larger as a belief of the user's interest in it is inferred, and unlikely songs are scaled smaller. The order of the tracks is also changed according to the inferred belief, allowing the retrieval to act as a constrained shuffle.}
+\label{fig:interface}
+\end{figure}
+
+\subsection{Exposing System Belief \& Uncertainty}
+
+Displaying a ranked list of songs would lose some of the information about the user's songs of interest, which the system has inferred from matching the user's query to the music collection. For example several songs may have a very similar level of belief held about them and this would not be communicated by simply displaying a sorted list. By exposing the uncertainty in the interaction to the user through some visual feedback, they will be better able to understand the behaviour of the system and and develop an appropriate mental model for producing the most discriminative queries.
+
+To better expose the beliefs held by the system, the size of each list entry is scaled by this belief. If one song alone is a particularly strong candidate then its font size will be much larger than the other entries. Similarly, where there is uncertainty across a number of songs, these will be a similar size -- making the user aware of the uncertainty within the interaction. This scaling of the tracks of interest not only reflects the retrieval result but allows for the easier selection of the intended track. This feedback also reflects the uncertainty in the retrieval, from both the user's query as well as similarity in the music collection. Such feedback of uncertainty can be applied generally, for example distorting a music map based on a belief over the music space or scaling the words in an word cloud of musical artists or genres. 
+
+\newpage
+
+<<clusteredtaps, dev='png',fig.pos='!t', fig.height=5, fig.width=9, fig.cap="Kernel density plot of IOIs in a rhythmic query, showing the clustering around categories of IOI values. Note that the mean of each category is a multiple of the smallest, e.g. 110, 220, 330mS giving a tatum of 110mS.", fig.scap="Clusters of intervals in rhythmic queries">>=
+library(dplyr)
+taps <- data.frame()
+file.names <- dir('../data/exampleTaps/', pattern =".txt")
+
+for (fn in file.names){
+  file <- read.table(paste('../data/exampleTaps/',fn,sep=''),header=FALSE, sep=" ", stringsAsFactors=FALSE) %>%
+    transmute(t=V1, song=c(fn))
+  taps <- rbind(taps, file)
+}
+
+tapdiff <- taps %>%
+  group_by(song) %>%
+  filter(song == "dover.txt") %>%
+  mutate(diff = t - lag(t)) %>%
+  filter(diff < 400)
+
+ggplot(tapdiff, aes(x=diff)) + #geom_histogram(aes(y=..density..), binwidth=1, fill=NA, colour="black") + 
+  geom_density(adjust=0.05, colour="black") + thesis_theme + xlab("Inter-Onset Interval (ms)")
+@
+
+\subsection{Interpreting Rhythmic Queries}
+As discussed in \secref{sec:musicuniversals}, listeners perceive and reproduce rhythm in relative categories of intervals between notes (\emph{IOIs}). These intervals are constructed as multiples of some reference, lowest common denominator beat termed the \emph{tatum}. Complex rhythms are thus distorted into distinct categories of \emph{IOIs}, each defined relative to each other. The tatum for the query must be established in order to then interpret the rhythmic pattern (as distinct from the absolute position of taps in the time domain). The tatum is estimated in this work by taking the autocorrelation of the histogram of \emph{IOI} categories, giving the reference unit in which they can be defined. One must take this approach of defining rhythmic events relative to each other as users cannot accurately reproduce the absolute timing of music. Taking only the relative timings would discard some information however, such as the tempo the query was produced at. To avoid this, the tatum itself can be used as an additional feature for weighting the retrieval. 
+
+For controlled non-musical rhythms, \cite{GhoFauHuo12} used k-means clustering to identify long and short interval clusters. As it is expected that users will generate \emph{IOIs} by sampling from distributions around an unknown number of \emph{IOI} categories, an alternative approach of modelling the categories is to fit a Gaussian Mixture Model selected using the Bayes Information Criterion. An example of the clustering is described in figure \ref{fig:clusteredtaps}.
+
+% Remove Python and svgfig dependency, just use static image 
+%
+% <<plot-rhythmic-query, engine='python'>>=
+% import svgfig
+% import sys
+% 
+% WIDTH = 20
+% HEIGHT = 40
+% 
+% START_X = 5
+% START_Y = 10
+% 
+% # Generate an example query diagram on the fly
+% query = "dbcbd"
+% 
+% paths = []
+% ascii_floor = ord('a')-1
+% d = [ord(e) - ascii_floor for e in query]
+% #d = [1,2,4,2,3,5,2,3,1,4,2,3,1,2,4,2,3,5,2,3,1,4,2,3]
+% total = 0
+% x = 0
+% colours = ['#DEEBF7','#3182BD']
+% i = 0
+% 
+% #svgfig._canvas_defaults['height'] = 2*START_X+sum(d)*WIDTH
+% #svgfig._canvas_defaults['width'] = START_Y+2*HEIGHT
+% svgfig._canvas_defaults['viewBox'] = '0 0 %i 100' % 400#((2*START_X+sum(d)*WIDTH), START_Y+2*HEIGHT)
+% svgfig.Text.defaults["font-size"]=10
+% svgfig.LineAxis.defaults["stroke-width"] = "0.75pt"
+% svgfig.LineAxis.text_defaults["font-size"]=9
+% 
+% for x in range(0, sum(d)):
+%     if x >= total:
+%         total += d[i]
+%         paths.append(
+% 		svgfig.Text(START_X+WIDTH*(x+0.5*d[i]), START_Y - 2.5, query[i]))	
+%         i +=1
+% 
+%     x_ = x + 1
+%     paths.append(svgfig.Rect(START_X+WIDTH*x+0.4,
+%                              START_Y,
+%                              START_X+WIDTH*x_,
+%                              START_Y+HEIGHT,
+%                              fill=colours[i%2],
+%                              stroke=None))
+%     
+%     
+% paths.append(svgfig.LineAxis(START_X,
+%                              START_Y + HEIGHT + 5,
+%                              START_X + sum(d)*WIDTH,
+%                              START_Y + HEIGHT + 5,
+%                              0,
+%                              sum(d),
+%                              arrow_end="a"))
+% 
+% t = svgfig.Text(START_X + sum(d)*WIDTH/2,START_Y + HEIGHT + 30, "Beats (multiples of standard beat)",)
+% paths.append(t)
+% 
+% s = svgfig.Fig(*paths).SVG("x,y")
+% s.save('../img/queryPlot.svg')
+% @
+
+\begin{figure}[bthp]
+\centering
+\includegraphics[width=\columnwidth]{query}
+\caption[Encoding a rhythmic query for comparison]{A rhythmic query depicted with alternately coloured intervals. The mapping between interval duration and string characters is shown.}
+\label{fig:query}
+\end{figure}
+
+\subsubsection{Rhythmic String Matching}
+The \emph{IOI} categories are assigned labels `A', `B' etc.\ for convenience. This allows the rhythmic queries to be easily encoded as a string of \emph{IOI} category labels. For example, an interval double the length of the tatum would be classified as `B'. An example query is depicted in figure \ref{fig:query}, showing the mapping from interval to string character.
+
+The problem of matching rhythm can now be generalised to string matching, for which many efficient algorithms exist. As in \cite{Han09}, the Smith-Waterman local alignment algorithm is used, as this is able to match a query against any part of a song. Similarly, the algorithm was adapted to scale the penalty with the mismatch error. An advantage of this approach over that in \cite{Han09} is that no thresholds are required, with the mismatch error being proportional to the difference between normalised \emph{IOIs}:
+\begin{equation*}
+E_{\text{IOI}} \propto \left( \text{IOI}_{\text{query}} - \text{IOI}_{\text{song}}\right).
+\end{equation*}
+
+A further feature of the \cite{SmiWat81} algorithm is that it was developed to allow for gaps in sequences, in order to match spliced DNA sequences. This feature is also useful in \emph{QbT}, as sections of a song in which the generative model fails to correspond to the user's query will simply be considered as a gap and given a limited penalty. The cost function of the string matching algorithm can assign a different score $S$ for matched, missing or incorrect \emph{IOIs}. A parameter $G$ weights the penalty for a gap, such that a gap is equivalent to $G$ \emph{IOI} mismatches. In this work $G=2$, assuming that if a query has two consecutive mismatched \emph{IOIs} then the query is no longer conforming to the model at that point. The penalty scores are calculated as follows:
+\begin{eqnarray*}
+S_{\text{match}} & = & 10,\\
+S_{\text{mismatch}} & = & -abs(IOI_A - IOI_B),\\
+S_{\text{gap}} & = & -G \times S_{\text{match}}.
+\end{eqnarray*}
+
+\begin{figure}[!t]
+\centering
+%\setcounter{MaxMatrixCols}{20}
+   $ H = \begin{pmatrix}
+&C&C&B&D&C&B&C\\
+B&0&0&10&0&0&10&0\\
+C&\cellcolor{red}10&10&0&0&10&0&20\\
+C&10&\cellcolor{red}20&0&0&10&0&10\\
+B&0&0&\cellcolor{red}30&10&0&20&0\\
+D&0&0&10&\cellcolor{red}40&20&0&10\\
+A&0&0&0&\cellcolor{red}20&20&10&0\\
+C&10&10&0&0&\cellcolor{red}30&10&20\\
+B&0&0&20&0&10&\cellcolor{red}40&20\\
+C&10&10&0&10&10&20&\cellcolor{red}50\\
+    \end{pmatrix}$
+\caption[Example of Smith-Waterman algorithm aligning a query to a song]{The Smith-Waterman algorithm compares a query against a target sequence, matching `CCBD-CBC'.}
+\label{fig:smithwaterman}
+\end{figure}
+
+The algorithm constructs an $n_{\text{query}} \times m_{\text{song}}$ matrix $H$ (as in figure \ref{fig:smithwaterman}) where $n$ is query length and $m$ is the target sequence length. If the strings were identical then the diagonal of the matrix would identify each matching character pair, thus diagonal movements incur no penalty. In the example shown, one sequence has an `A' removed (the downward step) to give a better match and thus a penalty is deducted from the score. Penalties are assigned when the other movements are required in order to create a match, with a back-tracking process used at the end to find the (sub)path with the least penalty. This process allows for the best matching subsequences to be identified -- in this work, a query matched against a larger song.
+
+\subsubsection{Tatum as a Feature}
+Previous work on \emph{QbT} defines the rhythm irrespective of tempo (or tatum), as is done here. It has been shown however that tempo can be a useful feature in browsing a music collection \citep{CroMur06}. Tatum (being related to tempo) should be used as an additional feature to weight the ranking of rhythmic queries. The weighting given to this feature could additionally be adapted to each user, though that is not explored in this work. The tatum $t$ error function is defined logarithmically, so that halving a duration is equivalent to doubling it:
+\begin{equation*}E_{\text{t}} = \left( \log_2 \! \left(\frac{\text{t}_{\text{query}}}{\text{t}_{\text{song}}} \right) \right)^2.\end{equation*}
+
+The tatum error is used as a prior over the music space when performing the rhythmic string comparison, biasing the results to those with similar tatum values. This helps discern amongst songs which are temporally very different but which share a similar rhythmic pattern. Where users only wish to listen to a particular style of music or cannot recall the rhythm of a song, they can simply tap a query at a desired tempo. If the rhythmic events are equally spaced (as in a metronome) then only the tatum is used to discriminate amongst the songs.
+
+It is worthwhile to note that tatum is not necessarily the inverse of tempo. Tempo is often calculated as `beats per minute', with an average value acquired across all the rhythmic events. It follows from this that the measured tempo would be highly dependent upon the section of song used to produce a query. The tatum however is the base unit that all the rhythmic events are multiples of and should be more stable throughout a piece of music. This distinction is largely only of interest from a technical perspective and generally, tatum is inversely proportional to tempo. %In discussions with users, the term tempo will be used for the sake of convenience.
+
+\begin{figure}[!b]
+\centering
+\includegraphics[width=0.75\columnwidth]{genModel2}%TODO: Fix image size
+\caption[Illustration of the generative model for rhythmic queries]{The generative model samples onset events from multiple instrument streams, producing a single output sequence.}
+\label{fig:genModel}
+\end{figure}
+
+\section{Generative Model}
+Rhythmic queries for a given song can vary greatly between subjects though are typically consistent within subjects. In order to build a database against which rhythmic queries can be matched, a generative model is required that can account for this variability. The use of the generative model encodes the knowledge about user behaviour obtained from the initial study. In essence, the model is designed to answer the question ``\emph{What would the user do?}'' to achieve an outcome (selecting a target song). Training the model to users can be done by setting a fixed outcome and asking users to provide the input they would provide to achieve that outcome. The inference of the user's intended music is conditioned entirely upon the model and so should inherently improve as the generative model is improved or trained. 
+
+\subsection{Instrument Affinity}
+Polyphonic music will have a sequence of notes for each instrument and thus a sequence of \emph{IOIs} for each instrument. As observed in the initial study, users typically switch between instruments as they feature in the music. This switching behaviour follows the user's preference of instruments to tap to. This set of preferences for instruments is termed here as the affinity vector $A\!_{f\!f}$, which ranks the available instruments in terms of the user's affinity. The generative model uses  $A\!_{f\!f}$ to switch to a preferred instrument's \emph{IOI} sequence as those instruments feature. The behaviour of this model can be considered as a finite state transducer with a state for each instrument, sampling from the instrument sequence corresponding to the current state, as in figure \ref{fig:genModel}. 
+
+Users are able anticipate upcoming musical notes and will not perform the switch to another instrument state if their preferred instrument sequence will shortly resume. This look-ahead behaviour is also implemented in the generative model. The model samples notes up to $500mS$ in advance and stores them in a look-ahead buffer; only when the buffer is empty does the state change to the next available in the affinity vector. Whenever a note event occurs for an instrument with a greater affinity, the model immediately changes state. For ease of calculation, the model is treated deterministically and a database of reference rhythmic sequences is produced across the music collection. A probabilistic approach to switching may better model user behaviour but would add a great deal of complexity.
+
+\subsection{Referent Period}
+As music is highly structured, rhythm can be thought of as a hierarchy, where a note on one level could be split into multiple notes on a lower level. Individuals have a `referent period', i.e.\ a rate at which information processing is natural to them and they are likely to synchronize at a level in the hierarchy of musical rhythm that is closest to their referent period. It has been shown that musical training and acculturation result in higher referent levels \citep{DraElH03}, and so it is likely that rhythmic queries will be produced from a variety of levels in the rhythmic hierarchy, depending on the issuing user. This adds an extra degree of complexity to the generative model, in that the generated queries must match the referent period with which the user produces queries. 
+
+In order to model the differing referent periods of users, a music corpus must contain onset data for several levels of rhythmic complexity. The appropriate level can then be selected as part of training the generative model. Such training enables the acquisition of a prior over possible referent periods for the user -- it may be the case that the user's referent period varies between songs.
+
+\section{Inferring User Intent}
+The task of ranking songs based on some rhythmic evidence can be seen as an inference task and not only as a traditional retrieval task. Previous work in information retrieval has introduced the use of query models to encode knowledge about how a user produces a query \citep{LafZha01}. The approach here is similar in the use of a query likelihood model. When producing a rhythmic query, the user uses their internal query model $\vec M_u$. They then produce a query using this model, which is matched against the music corpus. The problem can thus be expressed using Bayes' theorem:
+
+\begin{equation*}
+p\left( d_j \! \mid \! q, \vec M_u\right) = \frac{p\left(q \! \mid \! d_j, \vec M_u\right) p\left(d_j \! \mid \! \vec M_u\right)}{p\left(q \! \mid \! \vec M_u\right)}.\end{equation*}
+
+That is, one can infer a belief about the intended song conditioned upon the query $q$ by computing the likelihood of the query being produced for each song $d_j$ in the music space. The prior $p\left(d_j \! \mid \! \vec M_u\right)$ should be non-informative, currently there is no evidence that music listening intent is directly conditioned upon the user's query model for tapping to music. In order to perform the above inference, the generative model of user queries $\vec M_u$ must be trained to the user. This is done by taking a fixed outcome (i.e.\ selecting a target song $d_t$) and asking users to provide a suitable query $q$ so as to achieve that outcome. The parameters of the generative model are then inferred from the query:
+
+\begin{equation*}p\left( \vec M_u \! \mid \! q, d_t\right) = \frac{p\left(q \! \mid \! d_t, \vec M_u\right) p\left(\vec M_u \! \mid \! d_t\right)}{p\left(q \! \mid \! d_t\right)}.\end{equation*}
+
+In this work the prior $p\left(\vec M_u \! \mid \! d_t\right)$ is non-informative however it is probable that the user's approach to tapping music is conditioned upon the particular song to some extent. In wider use where a large corpus of queries has been collected, it would be possible to compute a prior belief about the tapping model used for each song. This should improve the inference of the user's general tapping model. For the work here the model is trained for a given song and a given participant to account for this, as well as looking at training across songs for a subset of participants.
+
+In order to infer a belief about whether a user is interested in a given song, one must compute the likelihood $p\left(q \! \mid \! d_j, \vec M_u\right)$ of their query conditioned upon that song being of interest and that user's query model. The string matching function is used to compare user queries with those in the database and to assign beliefs to songs accordingly. The more edits that are required to match the query to the stored song sequence, the lower the estimated likelihood of that query for that song.
+
+\section{Evaluation}
+A within-subjects experiment was conducted to compare the performance of the query likelihood model described before and after training, as well as against a baseline approach using the onset detection techniques described previously. These conditions are termed: \emph{Baseline} (onset detection), \emph{Untrained GM} (polyphonic data with generative model) and \emph{Trained GM} (polyphonic data with trained generative model). Given the parameters of the generative model, the target space against which queries are matched is greater than in the baseline case. For the baseline, there is one possible sequence for each of the $300$ songs. The model has four instrument sequences for each song, sampled using the generative model with $96$ possible parameter permutations, yielding a target song space of $28,800$ sequences.
+
+\subsection{Experimental Setup}
+A corpus of MIDI and MP3 music data was acquired from popular rhythm games, featuring professionally annotated note onset times (from which \emph{IOIs} are computed) for each instrument in 300 rock and pop songs. While the size of this corpus was limited by the source of data, it was reflective real-world usage at the time -- \cite{KarRen13} gives it as the median music file collection size in Germany. Participants selected at least two songs from the corpus and listened to them to ensure familiarity. They were then asked to produce at least three rhythmic queries for each song by tapping a section of the song's rhythm on the touchscreen of a Nokia N9 mobile phone. No feedback was provided to the participant after each query. The queries were used to train the generative model using leave-one-out cross-validation. Participants were provided with headphones to control background noise.
+
+Quantitative data was captured in the form of rank results, with songs ranked according to the inferred belief. Qualitative data was captured during a discussion with participants where they were asked to comment on the style of interaction presented and whether they found it enjoyable and/or useful. Eight unpaid British participants volunteered, four female, four male, ages 18 -- 72 (mean: 30). Half of the participants were university students and one a retiree. Participants were instructed to ``tap the rhythm of the song on the touchscreen, in order to select that piece of music.'' No limit was made on the length of the queries. The participants were not musicians, otherwise musical background was not controlled.
+
+Rhythmic queries were captured using a Nokia N9, running the logging software and variant of the Smith-Waterman algorithm, both developed in C++ using the Qt framework. Bayesian parameter estimation with a non-informative prior was used in the training, rather than selecting the parameters using the Maximum Likelihood Estimate, retaining some uncertainty to mitigate overfitting. The goal was for the target song to always be in the on-screen (top 20) rankings, rather than optimising for the highest rankings.
+
+\subsection{Results}
+<<tapping-length>>=
+library(dplyr)
+mono <- read.csv("../data/tapTrials/monotimeResults.csv") %>%
+  mutate(condition="Baseline")
+
+trained <- read.csv("../data/tapTrials/trainedtimeResults.csv") %>%
+  mutate(condition="Gen. Model")
+
+thresh = 20
+
+tapLengthResults <- rbind(mono,trained) %>%
+  # Correct for 0th indexed rank and milliseconds
+  mutate(Time=Length/1000, Rank = Rank + 1, Condition=factor(condition)) %>%
+  group_by(Time, Condition) %>%
+  summarise(samples=n(), highRanks = sum(Rank <= thresh), recall = highRanks / n(), MRR=mean(1/Rank)) %>%
+  # Drop where few samples (there aren't many super long queries)
+  # And single tap queries (effectively tactus only), it breaks the log scaling
+  filter(samples > 3 & Time > 0)
+@
+
+<<tapping-recall, eval=TRUE, dev='png', fig.height=5, fig.width=7, fig.cap="Recall rate i.e.\\ percentage of queries yielding a highly ranked result (in the top 20) plotted against query length in seconds. Retrieval performance is shown with the generative model using annotated polyphonic onsets, with monophonic onset detection baseline for context. Performance improves with query duration however falls off rapidly with lengthy queries.", fig.scap="Rhythmic retrieval performance (recall)">>=
+ggplot(tapLengthResults, aes(x=Time, y=recall, group=Condition, colour=Condition, shape=Condition)) + 
+  geom_point(alpha=0.6) + geom_smooth(se=FALSE) +  
+  xlab("Query length in seconds (log)") + ylab("Recall rate (%, thresh = 20)") + 
+  thesis_theme + scale_shape(solid=FALSE) + scale_colour_brewer(type="qual",palette=6) + 
+  scale_x_log10(breaks=c(0.5,1,2,5,10,20,30)) + coord_cartesian(xlim=c(0.47,32))
+@
+
+<<tapping-MRR, eval=TRUE, dev='png', fig.height=5, fig.width=7, fig.cap="Mean Reciprocal Rank (MRR) of rhythmic queries, higher values indicate a better ranking for relevant results.", fig.scap="Rhythmic retrieval performance (Mean Reciprocal Rank)">>=
+ggplot(tapLengthResults, aes(x=Time, y=MRR, group=Condition, colour=Condition, shape=Condition)) + 
+  geom_point(alpha=0.6) + geom_smooth(se=FALSE) +  
+  xlab("Query length in seconds (log)") + ylab("Mean Reciprocal Rank") + 
+  thesis_theme + scale_shape(solid=FALSE) + scale_colour_brewer(type="qual",palette=6) + 
+  scale_x_log10(breaks=c(0.5,1,2,5,10,20,30)) + coord_cartesian(xlim=c(0.47,32))
+@
+
+One measure of interest is how rapidly a user can filter their music collection to recall the desired result on screen (i.e.\ into the top 20 ranked songs or 6.7\% of the collection). Figure \ref{fig:tapping-recall} shows the percentage of queries which resulted in such a ranking, with query performance improving with query duration in seconds. Another useful measure is Mean Reciprocal Rank shown in figure \ref{fig:tapping-MRR}, reflecting more directly the position of the song within the ranking. The distinction is useful in that, for the purposes of the interaction it is important to get an on-screen result, however a comparison of rank positions gives a more direct indication of the performance of the retrieval.
+
+Higher rankings are achieved for all query lengths when using the trained generative model. Queries with lengths of approaching 10 seconds always yielded an on-screen result (in the top 6.7\% of the corpus). Up to this point the recognition rate improves with query length, as the additional information is incorporated. A key feature of note in these results is that queries over 10 seconds lead to a rapid fall-off in performance.
+
+%\begin{figure}[b]
+%\centering
+%\includegraphics[width=0.9\columnwidth]{boxplot}
+%\caption{Box plots of retrieval ranks using the query models.}
+%\label{fig:boxplot}
+%\end{figure}
+
+<<tapping-boxplot, dev='png', fig.height=4, fig.width=7, fig.scap="Box Plots of Query by Tapping retrieval results",fig.cap='Query by Tapping results using the polyphonic generative model, trained and untrained, as well as a baseline using monophonic onset detection'>>==
+results <- read.csv('../data/mobileHCI-taps.csv') %>%
+  mutate(Rank=Rank+1, Model=factor(Model, labels = c("Baseline", "Untrained GM", "Trained GM")))
+
+fills = brewer.pal(10,"RdBu")[c(3,8,9)]
+ggplot(results, aes(x=Model, y=Rank, fill=Model)) + geom_boxplot() + xlab("Query Model") + 
+  thesis_theme + scale_fill_manual(values=fills) + theme(legend.position="none")
+@
+
+The distributions of retrieval result rankings for each condition are shown in figure \ref{fig:tapping-boxplot}. A paired t-test comparison was performed between the conditions, with Bonferroni corection, showing a statistically significant mean improvement of the trained generative model over the untrained and baseline query likelihood models ($P < .001$). The improvement of the untrained generative model over the the baseline monophonic model was not statistically significant ($P = .279$).
+
+Participants said they enjoyed using \emph{QbT} as an interaction style, often choosing to continue the interaction beyond the requirements of the experiment. The experiment was viewed as a game, with half of the participants requesting further attempts to improve their results. One participant identified in-pocket music selection as an interesting use case, as depicted in figure \ref{fig:rhythmicsystem}. Another expressed concern about the scalability of using rhythmic queries for especially large music libraries. All the participants immediately grasped the concept of \emph{Query by Tapping} and were able to readily produce rhythmic queries. Only one participant claimed to only tap to one instrument.
+
+\subsection{Singapore Focus Group}
+An exploration of the application concept was conducted using a prototype demonstrator with a small focus group of five Singaporean participants -- four female, one male. The particpants all used mobile media players and were aged 26 -- 59 (mean: 40). They also spoke and listened to music in Chinese and English, giving a view of how the system performs cross-culturally. The demonstrator was presented to them and they were able to interact freely with it, an informal conversation followed to capture their impressions. Participants were asked to compare the interaction with their usual way of listening to music in a mobile context, to consider the `in-pocket' use case, whether they would feel comfortable using the interaction style in public and whether the interaction style was suitable for their music. 
+
+The discussions with participants identified that they all often listened to music using the `shuffle' feature of their phones or music players, occasionally using the menu interface to select particular music. The use of rhythm to shuffle music was well received as a superior option to random shuffle, with P3 noting that random shuffle can lead to inappropriate music selections at night and that shuffling by tempo could avoid this. Participants were very positive about the in-pocket use case, with P1 saying that it ``means I can select music when it's raining'' and P2 saying that ``it can be hard to take my phone out to change song because I have small pockets.'' P3 and P4 noted that fear of theft sometimes prevented them from removing their phone to select music. Social acceptability of the interaction is important as the use-case for in-pocket music selection includes being in mobile, public contexts. None of the users indicated an issue with tapping rhythms on the phone on the bus (P5 likened it to drumming on their lap). 
+
+Participants also offered up some concerns about the interaction technique. P2 doubted their ability to produce suitable rhythmic queries for all of their music despite achieving good performance with the demo, citing their lack of musical knowledge. They did however appreciate the inclusion of the tempo-only sorting ability to mitigate the need for accurate rhythmic querying. P5 pointed out that the `intensity' of their taps is an overlooked feature of rhythm and expected it would be interpreted.
+
+\section{Discussion}
+The results show that accounting for subjectivity in users' rhythmic queries greatly improves retrieval performance despite increasing the target space. While validity was shown for average music collections, scalability is a concern, with larger music libraries requiring additional sources of evidence for effective retrieval. A further concern is the drop-off in performance for large rhythmic queries, possibly due to the user having a limited section of music in mind when they begin producing a rhythmic query. The results suggest that performance for this and existing techniques may be greater if query length is limited. Further improvements for the generative model should also allow for participants who tap one instrument exclusively. 
+
+As expected, participants stated they used shuffle frequently -- the ubiquity of shuffle is noted in \cite{Qui07} and attributed to the popularity of the iPod shuffle MP3 player. Similarly, users felt comfortable with the interaction technique --  work by \cite{RicBre10} has shown that users feel comfortable producing rhythmic and tapping gestures in public. It is of interest that all of the participants felt the interaction suited both their English and Chinese music, existing techniques such as browsing by genre are culturally specific and so this is potentially an advantage of this interaction style. 
+
+\subsection{Limitations}
+While the benefits of the techniques presented have been demonstrated, much work remains in studying rhythmic querying as an interaction technique. The evaluations here aimed to validate the use of the generative model. A wider study could provide further insight into rhythmic querying behaviour -- for example, exploring the suggested additional features to incorporate tap intensity, single-instrument annotation and song-specific tapping strategies. A key limitation of this work is that the training and validation queries are acquired in the same session - a longitudinal study may show that users' rhythmic querying behaviour changes over time. Overall, it has been shown that \emph{QbT} can be greatly improved with the use of a trained generative model and is an interaction technique worthy of much further exploration.
+
+\subsection{Incorporating Subjectivity}
+It could be argued that one would of course expect better results from the use of ground-truth polyphonic music data than from the use of detected onset events. The untrained generative model provides an example of this, showing an apparent though non-significant improvement over the baseline (onset detection). After training the generative model, the improvement in retrieval performance is dramatic. It is not surprising that incorporating knowledge about the user improves the performance of the system. The use of a generative model does not in itself yield much of an improvement however it provides a mechanism by which one can incorporate the prior knowledge about the user. It is only when the issue of subjectivity in how users produce their queries is addressed that significant performance increases are seen. The subjectivity was addressed through the use of a simple model based on initial discussions with users, it is likely that far more powerful models could be constructed.
+
+\subsection{Scalability}
+The techniques employed aimed to ensure a top 20 (on-screen) result rather than optimise rank at the risk of failed queries. That users were unsure of their ability to achieve this level of performance indicates that further work could be done to improve users' confidence during the interaction, for example with real-time feedback. It is to be expected that as the size of the music collection is increased, retrieval performance using rhythmic queries will fall. The results show this style of interaction to be valid for an average music collection of 300 songs. Performance is far greater as collection size is reduced, with queries yielding first ranked results 65\% of the time when the collection is halved to 150 songs. The Bayesian approach allows for this issue of scalability to be addressed through the introduction of additional sources of evidence. For example a different interaction style could use sung queries -- providing pitch, rhythm and tatum as evidence. Such an interaction would also benefit from the user query modelling approach introduced here. Other evidence sources could include the dynamics of the tap events, for example a `strumming' action could denote guitar events.
+
+Rather than implement a simple retrieval of a musical work by tapping its rhythm, the user's entire collection of music is re-ordered according to the rhythm and tempo evidence. This means that for this collection or larger ones, the drop-off in retrieval performance is more acceptable as the user is still able to assert control over their music collection, ordering it according to the evidence they provide.  The queried music could even just be a subset of the music -- landmark tracks, which the user selects to indicate the type of music they want. At the very least, the user can shuffle their music by tempo and rhythmic similarity. The intended song need only be ranked in the top 20 results displayed on-screen, with the user then able to select the song easily.
+
+\subsection{Query Performance}
+A surprising result is the sharp drop-off in retrieval performance with query length. One might expect that as more evidence is introduced, retrieval performance would increase, indeed such a relationship is seen in queries up to $10s$ in length. It is unlikely that users recall the entirety of a song in advance of producing a rhythmic query -- instead they would select a memorable or distinctive passage of the music. The drop-off in performance could reflect that users have continued beyond the salient part of the music they had in mind. This issue could be addressed by limiting the length of rhythmic queries or by providing real-time visual or haptic feedback to the user so that they entrain with the song as it begins playing. This result has wider implications for rhythmic interaction (for example in the use of rhythmic `hot-keys' in \cite{GhoFauHuo12}) in that it indicates an upper length for rhythmic patterns. More generally, this result could suggest that any music content based querying technique such as humming or singing may also suffer from falling performance for queries over ten seconds. It is worth noting that while mean rank result improves with the use of the generative model and with training, the most significant change is in the `long tail' of poor results. This work not only improves mean query performance but also makes for a more consistent user experience, cutting off the long tail of poor results caused by subjectivity in query production.
+
+%\subsection{Combining Evidence}
+%An advantage of taking this Bayesian approach to sorting the music space is that evidence can be incorporated in the form of a prior over the music space. In this paper this is used to incorporate the tatum as an additional source of evidence, having previously separated the rhythmic pattern from the tatum. There are many other sources of evidence about listening intent which could be taken as a prior belief over the music space, for example the user's listening history for the music tracks. 
+
+%The prior over the generative models for rhythmic queries is updated using Bayesian parameter estmiation in the training task. This avoids over-fitting the belief about the user's query model based on a limited number of training cases.  This reduces the ranking of good queries however has the effect of improving the recall of queries where the learned model is not the best match. A trade-off must be struck with this uncertainty, though in real-world usage the effect would be mitigated due to the availability of more training data.
+
+\subsection{Further Challenges}
+Having identified the benefits of improving consensus with the user with a trained model, there is an opportunity for further study in using feedback as part of a consensus-building interaction with the user. The rhythmic matching algorithm could be improved further through the use of music theory, for example where a whole note is replaced by four quarter notes, the penalty should be very little. Such techniques have been applied in similar efforts in matching pitch in melodies, leading to the \cite{MonSan90} algorithm and eventually to services such as SoundHound. Such work, combined with improvements in onset detection, could allow robust commercial applications of rhythmic music retrieval. Given that users can recall a great number of musical works and the results shown here, future research could build upon this work to use musical rhythm for interaction tasks other than just the retrieval of music, e.g.\ tapping a rhythm on a phone in-pocket to dial a corresponding contact when using a bluetooth headset.
+
+This work has implications for future research in interaction with music, demonstrating a need for considering user variance. In the following chapter, generative models of user queries are again used for inferring user intent, coupled with prior knowledge of their interest in a music space. 
+
+\section{Conclusions}
+Previous efforts at \emph{QbT} were improved upon by using trained user query models to sample from polyphonic music data. Using a generative model of subjective queries has taken rhythmic music retrieval from a concept with potential to a usable interaction style. These user models allowed for a dramatic improvement in retrieval performance, with the intended song always appearing in the top ranked results. This work highlighted the issues caused by subjective music queries and developed a personalisable music retrieval system. Users enjoyed using the system in trials, often asking to continue use beyond the experimental requirements in order to attempt to improve their ranking. Users were able to generate rhythmic queries from their subjective interpretation and memory of music rather than using a memorised rhythmic pattern. Removing the need for memorisation in this way has applications beyond music retrieval, for example the work on rhythmic hot-keys could benefit from the presented approach.
+
+The interaction technique presented in this work enables users to enjoy a casual style of music retrieval -- empowering them to interact with their music in new contexts such as in-pocket music selection. By shuffling the music playlist by the rhythmic query, users can provide uncertain queries about a type of song or query for a particular song without having to recall its title etc. The techniques developed here achieve the goal of casual in-pocket music control with users able to see the benefit of the interaction style and identify use cases relevant to them. The personalised rhythmic filtering presented offers a music retrieval style designed to support both low \emph{interaction engagement} and low \emph{retrieval control} re-ordering by tempo, or for users to engage more and query for a specific song's rhythm.

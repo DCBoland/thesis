@@ -1,0 +1,247 @@
+\chapter{Engagement with Immersive Media}
+\label{chap:vr}
+
+\lettrine{I}{mmersive} media, where the user's attention and cogntive resources are focused on their media experience, presents an example of where a more nuanced consideration of user engagement is required. The user's \emph{interaction engagement} with the media system may be diminished by their engagement with the media itself. When users are immersed in watching a film, they may be disinclined to use an Electronic Programme Guide. Similarly, a music listener may want to play an album or playlist so they are then free to immerse themselves in the music. A rather extreme example of this tension is the case of Virtual Reality (VR) Head Mounted Displays (HMDs) -- while receiving a great deal of industry investment, the current interaction scenarios greatly impede the user's ability to interact with the system via established modalities such as keyboard, mouse, etc. VR provides a context for considering more generally the competition for the user's attention, with engagement not simply the level of effort from the user, but how they apportion that attention and effort.
+
+\section{Background}
+
+%\subsubsection{Interaction}
+%  tangibles and tangible mixed reality interfaces such as HARP \cite{LinSib99}
+When engaging in an interaction with a VR system, the user's control has predominantly been through the use of gestural interfaces (such as the Leap Motion) or interfaces that are suitable for use without sight (tangibles, handheld controllers, or relying on a subset of keyboard/mouse commands) \citep{BilKat99}. These solutions, while potentially adequate for low levels of \emph{interaction engagement}, are almost certainly inadequate for higher levels. Tasks such as text entry, drawing on a pen display etc.\ require a greater bandwidth of input and a high \emph{interaction engagement}, making them difficult to perform using a HMD.  In particular, interactions break down where the output feedback is not incorporated into the VR presentation, e.g.\ trying to use a phone while wearing a HMD.
+
+Keyboards are a ubiquitous input technique and a key example of the issue of limited \emph{interaction engagement} with real-world peripherals when using VR HMDs. Their use involves both kinaesthetic feedback from fingers striking keys and visual feedback to observe hand and key placement. Virtual keyboards offer a replacement input modality in virtuality, but lack haptic feedback. This can have a dramatic effect on typing performance. In a study of typing performance on a flat keyboard (lacking the haptic feedback of key travel) versus a standard keyboard in VR, \cite{BarKru94} demonstrated a significant performance drop without haptic feedback. A variety of text entry methods for use when wearing VR HMD (both mobile and static) have been proposed. Outside of speech, none have been shown as approaching the performance of the standard PC keyboard \citep{GonMolGar09}. There are many contexts in which speech may not be appropriate, not only for social reasons but also the twitch responses required in gaming. This chapter thus investigates how the user's engagement with their real-world peripherals such as keyboards could be supported when they are engaged in immersive VR media experiences. 
+
+%A rather extreme example is a study by Rabin \& Gordon where expert users had their right index fingertip anaesthetised, which demonstrated a seven-fold increase in the error rate for that finger \cite{RabGor04}.
+
+Visual feedback has also been shown to impact typing rate and accuracy. \cite{ClaLyoSta05} evaluated keyboards for blind-typing, using a small mini-QWERTY keyboard. They found that when users had no view of their hands typing, their typing rate and accuracy suffered. They note that when deprived of on-screen visual feedback, users' typing rate actually increased. They term this the `Skywalker effect', i.e.\ on-screen feedback can impair performance by making users over-conscious of their errors. This result is also interesting in that the user attending to the feedback, having a high \emph{interaction engagement}, actually impeded task performance -- again showing the need for models of engagement rather than simple metrics of performance. In earlier work, \cite{RosChiDeb80} showed that typing rate itself was not much influenced by the on-screen feedback, but the number of corrections was. These studies confirm the model set out by \cite{Lon76} -- haptic and visual feedback support typing while on-screen feedback is a higher level control loop, only supporting correction.
+
+For high bandwidth input devices like keyboards, performance suffers without the low-level feedback present in reality (haptics and visual). The on-screen feedback in the studies did not support the high-bandwidth, low-level input. When using a virtual keyboard in VR, users have no `real' feedback, with only `on-screen' feedback available. It is clear that it is desirable to provide such feedback to the user, however doing so affects the user's immersion in VR. This issue is addressed using an engagement dependent approach in \secref{sec:typingstudy}.
+
+\subsubsection{Immersion and Presence}
+Immersion in VR is typically quantified through the user's sense of presence. Presence can be affected by the rendering quality of the scene, the quality of the HMD's head tracking, and even how users interact with virtual objects. It can be increased through natural interactions with objects as they occur in the real world \citep{KabTao11}. 
+There are a number of approaches to measuring presence, such as instrumenting the user to monitor brain activity or more traditional qualitative measures \citep{Van04}. The Igroup Presence Questionnaire (IPQ) \citep{SchFri01} is widely used and sufficiently generalised to be adopted in this chapter. \cite{Sla09} described presence as \emph{place and plausibility illusion} -- by taking an engagement-dependent approach to incorporating feedback from reality into VR, the impact of such blending on place illusion can be minimised.
+
+\subsection{Mixed Reality}
+The field of `mixed reality' considers displays as being on a continuum between reality and virtual reality -- the `Virtuality Continuum' \citep{MilKis94,MilCol99}. This continuum led to the definition of both Augmented Virtuality (AV), where a virtual reality or `virtuality' view is augmented with elements of reality, and Augmented Reality (AR), where a reality view is augmented with elements of virtuality. A display's position on the continuum is determined by the balance of reality or virtuality that is incorporated into the display feedback. AR has seen increased research focus in recent years, building upon early work such as Navicam \citep{RekKat95}, with reality being augmented to allow for novel interactions. AV has also been investigated, through the use of chroma-keying approaches blending elements of reality into a VR space. Head-mounted cameras have often been used to capture reality, e.g.\ \cite{SteBru09}'s use of chroma-key techniques to incorporate the user's body, presenting a virtual hands and body in an egocentric view of virtuality. More recently, head-mounted depth cameras have allowed for incorporating hands or objects into virtuality, such as in \cite{TecAvvBro14}. The availability of larger area sensing, such as with Microsoft's Kinect, allows for multi-user tracking, as well as gestural interaction, which could be used to more broadly augment the virtuality environment. 
+
+There remains the question of how best to manage the augmentation of virtuality - managing traversals or transitions within the virtuality continuum as discussed in \cite{DavRolHam03}. Mixed reality research such as \cite{BenGre98} has explored boundaries, where physical boundaries mark the change between mixed and virtual reality \citep{GraLam05}. Where an interaction spans distinct points on the mixed reality continuum, it is termed a \textit{transitional interface}. The importance of continuity in transitional interfaces has been highlighted, as well as the lack of a theoretical guideline for when to make these transitions, and how much to transition by \citep{CarTreRap12}.
+
+\section{Linking Engagement to Mixed Reality}
+Chapter \ref{chap:eng} explored a number of conceptions of user engagement, and this thesis has developed engagement-dependent approaches to retrieval and interaction, such as in \chapref{chap:eng-dep}. From the control-theoretic perspective, the more engaged with an interaction users are, the more frequently and accurately they sample feedback and the more they provide rapid and accurate high-bandwidth input. While the literature review and findings of \chapref{chap:measures} highlight the need for a more nuanced understanding of engagement, extending to affective and other factors, the control-theoretic model does allow for a coherent interaction to be designed that can span levels of engagement.
+
+Depending on their current context in VR, users will vary in how much they wish to engage with interactive objects in reality. Users may wish to engage with and incorporate real persons around them or interactive devices like keyboards or phones into their VR experiences, e.g.\ \cite{BruSteVal10} used chroma-keying to incorporate real-world tools into VR according to architectural context when exploring a VR house. Transitions in mixed reality can be linked to user engagement with interactive elements in the different environments. A  user exploring a VR environment may have no need for objects in reality. However, if they extend their hands to engage with their keyboard, there should be a transition to a mixed reality mode. Allowing users to control their position on the mixed reality continuum combines transitional interfaces, mixed reality and the engagement-dependent approach. 
+
+While this engagement-dependent blending allows users to see and interact with real-world objects only as they wish to engage with them, there remains the question of identifying this level of engagement. In \chapref{chap:eng-dep} it was denoted explicitly by users, this chapter explores implicit measures of engagement such as gaze, as well as more explicit measures such as the user's gesture to interact with the device. It is also likely that users would wish elements of reality to be blended when there is a \emph{likelihood} of engagement, for example a user with a VR HMD could be made aware of others entering the room. The issue of personal space and the social contexts around VR relate to the affective aspects of engagement not captured in the control-theoretic view.
+
+This chapter aims to show how an engagement-dependent approach to AV supports richer interactions with higher bandwidth input. Figure \ref{fig:reality-virtuality} shows the control loops involved in the presented engagement-dependent, mixed reality system (blue for real, red for VR). The VR control loop involves input from reality and feedback from the virtual environment. The VR control loop is high-level, comparable with on-screen feedback for typing: users see the results of their typing but not their hands. The more a user engages with a real interactive object such as a person or keyboard, the more it can be blended into the augmented virtuality view. Users can thus perceive the low-level feedback from interacting with the real object, e.g.\ hitting keys when typing or social signals from proximate persons. They are able to choose to engage with reality from a virtuality context, with their control loop with reality becoming more tightly-coupled so that they can rapidly sample detailed feedback from reality.
+
+\begin{figure}[thbp]
+\centering
+\includegraphics{"reality-virtuality"}
+\caption[Engagement-dependent Augmented Virtuality control loop]{Feedback from real objects being engaged with can be used to augment virtuality, providing a low-level control loop (in blue) that can support high bandwidth interaction, such as typing. As the user engages with reality, the more real feedback is mixed with virtuality.}
+\vspace{-0.1in}
+\label{fig:reality-virtuality}
+\end{figure}
+
+\section{Mixed Reality Typing Study}
+\label{sec:typingstudy}
+
+ \begin{figure}[!b]
+  \centering
+  \includegraphics[width=\textwidth]{"vr-setup"}\\
+  \caption[Experimental setup for the VR typing study]{Experimental setup for the VR typing study. Users wore a Oculus Rift VR HMD augmented with a camera for mixed reality blendng. Users entered text using a standard desktop QWERTY keyboard. The desk and area in front of the user was made green to allow a chroma-keying approach to the mixed reality blending.}
+  \vspace{-10pt}
+  \label{fig:vr-typingsetup}
+\end{figure}
+
+% While gestural input or other simplified input modalities would be appropriate, we note that these are low-bandwidth inputs and not suitable for typing an email in a virtual office, or instant messaging in a game. Given this need for high-bandwidth inputs, and the evident disparity in terms of how respondents rated their ability to effectively interact with objects versus peripherals, we elected to validate how effectively a common peripheral and high bandwidth input is used, in the form of the keyboard.
+
+To interact with a VR environment, a user requires an appropriate input modality. Input actions occur in reality and in VR the user loses the inherent visual feedback for these actions. Many text entry methods for VR have been considered \citep{GonMolGar09}, with voice input offering reasonable performance, however adoption of novel modalities will be slow and the use of keyboards is likely to continue, even if only transitionally. The keyboard is a ubiquitous input device and widely used by gamers (currently the key demographic for consumer VR HMDs); it is familiar, its layout is consistent, it has guidance for blind typing, and users are proficient in its usage. The use of a keyboard in VR presents the immediate problem of requiring the user to locate it in reality while immersed in VR. Users must switch from considering their virtual environment to the spatial layout of their real surroundings.
+
+Typing offers an interesting case for examining the ability to interact with reality, being an example of a rich interaction with an object that requires a high-bandwidth feedback loop. Enabling high performance keyboard use is a quantifiable means of demonstrating the general opportunity for rich interaction supported by engagement-dependent AV. This chapter explores bringing the real keyboard into virtuality, hypothesising that this would demonstrate increased performance when blending feedback from reality with virtuality.
+
+\vspace{-0.06in}
+\subsection{Design}
+\begin{figure}[btph]
+  \centering
+  \includegraphics[width=\textwidth]{"vr-noblending"}
+  \caption[Status quo condition for VR typing study (no view of keyboard)]{Typing Condition 2: No mixed reality blending. Users were unable to see the keyboard and instead could only see the VR environment, in this case the text entry prompt.}
+\label{fig:vr-noblending}
+\end{figure}
+
+\begin{figure}[btph]
+  \centering
+  \includegraphics[width=\textwidth]{"vr-partialblending"}
+  \caption[Partial mixed reality blending for VR typing study]{Typing Condition 3: Partial mixed reality blending. Users were immersed in the VR environment however elements of reality were blended in as engaged with, e.g.\ as the user reached for the keyboard.}
+\label{fig:vr-partialblending}
+\end{figure}
+
+\begin{figure}[btph]
+  \centering
+  \includegraphics[width=\textwidth]{"vr-switching"}
+  \caption[View-switching for VR typing study]{Typing Condition 4: VR/Reality switching. The user's view switched between reality and virtuality depending on which they were presently engaging with.}
+\label{fig:vr-switching}
+\end{figure}
+
+A text entry study was conducted with four conditions. It was designed to assess both the status quo performance with no view of reality, as well as the potential for improving performance through incorporating either a full view of reality, or a selected subset of it.
+\begin{description}
+    \setlength{\itemsep}{0pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item[1 Reality]{Baseline typing performance on a keyboard with full view of reality (no HMD).}
+    \item[2 Virtuality]{Status quo with no keyboard view and wearing a HMD (typical of current VR HMD users' setups), as in \figref{fig:vr-noblending}.}
+    \item[3 Partial Blending]{A view of the keyboard and user's hands was blended into virtuality based on engagement, e.g.\ reaching out for the keyboard, as in \figref{fig:vr-partialblending}.}
+    \item[4 Switching]{The view was switched between reality or virtuality based on engagement, as in \figref{fig:vr-switching}.}
+\end{description} 
+
+Sixteen participants were recruited from University mailing lists (Age mean=25.6, SD=4.0, 14 male, 2 female) in a within-subjects design. For the baseline condition, users were seated at a standard single monitor workspace, while in virtuality users found themselves in a VR space with the same view as was on the monitor previously. Users were asked to enter 15 phrases, with 1 training phrase at the start of each condition to familiarise them with the keyboard view presented. Before each phrase, participants were asked to put their hands by their side, in order to mimic aperiodic interaction with the peripheral from VR. Based on \cite{KriVer12}, the MacKenzie 500 phrase set was used, with phrases chosen at random and presented at the top of the display, with the bottom of the display used for on-screen feedback of typing. Baseline typing was captured first, the remaining conditions were counterbalanced. In addition to standard typing metrics \citep{SouWil03}, accuracy and time to first key press were also measured to gauge how effectively participants could locate the keyboard.
+
+\subsection{Implementation}
+Bringing the keyboard into VR was achieved with the use of a modified Logitech C310 HD webcam, with a 1.8mm M12 wide-angle board lens, mounted on the front of an Oculus Rift DK1. A single camera setup with only monocular depth cues was used as this approximates current camera setups in VR headset/phone hybrids (such as the Samsung Gear VR), as well as minimizing processor load and latency. The scene was rendered at 60FPS.
+
+For selectively blending reality, a chroma-key approach (\figref{fig:vr-typingsetup}) was utilised whereby the keyboard was placed within a green screen environment, with multi-threaded image processing and HSV thresholding in openCV used to determine the green screen contour and non-green contours within it, which were then presented in virtuality. This was performed separate to the rendering of the webcam, to minimise the latency of the user's view of reality, through an alpha mask which was generated and applied with \texttildelow1 frame of latency. Hand detection occurred within the same process, with users wearing markers on their hands that were detected via openCV blob detection. This was implemented in the Unity 4 engine. The VR scene was rendered on a Intel Core i5 (3.30GHz) with an Nvidia GTX 460 GPU. The keyboard used was a standard PC size and layout, however it featured larger lettering; this was to compensate for the low resolution of the Oculus Rift HMD.
+\vspace{-0.1in}
+
+\subsection{Results}
+The typing statistics can be seen in table \ref{table:vrtyping} and include a repeated-measures ANOVA (GLM) with post hoc pairwise Tukey's tests ($\#-\#$ indicates a significant difference between numbered conditions, $p<0.05$). Performance was highest in the `1 Reality Baseline' condition for most metrics, in keeping with previous work in the literature. The status quo condition of `2 VR No Blending' had significantly higher error rates (corrected and not corrected) and a large drop in typing rate (WPM). The two AV conditions (3 and 4) significantly reduced the error rate in VR typing, nearing the baseline rate of typing in reality. Typing rate however, while improved, failed to reach reality baseline performance. There was no significant difference between partial and full blending in these measures. Figure \ref{fig:vr-typingaccuracy} demonstrates the behaviour participants employed in order to type as quickly and accurately as possible: for condition (2) where users had no view, they quickly made inaccurate keypresses for orientation to the keyboard, whereas the AV conditions (3 and 4) introduced some delay.
+
+\vspace{-0.1in}
+\subsubsection{Discussion}
+Using the engagement-dependent approach to selectively augment virtuality with the real keyboard greatly reduced error rates. Users were able to orient themselves to the keyboard as if it were in VR, they did not need to attempt to remember where the keyboard was in the real environment while in VR. Typing rate is a low-level feedback loop and not supported by the usual feedback in VR. Bringing the visual feedback of the real keyboard into VR helps, however a lack of stereoscopic depth cues and the latency of the VR HMD likely contributed to the modest gains in WPM in the AV conditions. These results demonstrate that incorporating reality into VR is necessary to preserve performance, and that only providing a view of the keyboard and hands does not negatively impact performance versus a full view of reality. The engagement-dependent approach of transitioning the control loop between AR and VR enables this partial blending of reality, supporting rich interactions in mixed reality.
+
+%\afterpage{%
+    \clearpage
+    \begin{landscape}
+
+<<vr-typing, cache=TRUE, results="asis">>=
+require(dplyr)
+require(tidyr)
+require(xtable)
+require(nlme)
+require(multcomp)
+
+typingmeans <- read.csv('../data/typingmeans.csv',check.names=FALSE) %>%
+  mutate(`Duration to First Key (sec)`=`Duration to First Key (sec)`/1000,
+         `First Key Correct`=`First Key Correct`*100)
+
+# Clunky, run through columns, making temp dataframes for each ANOVA, store all results in list
+dvs <- typingmeans %>% select(-Participant, -Condition, -Duration)
+dvs_lme <- lapply(dvs, function(x) lme(dv ~ Condition, random = ~1|Participant,
+                                      data=data.frame(Participant=typingmeans$Participant,
+                                                      Condition=typingmeans$Condition,
+                                                      dv=x)))
+aovres <- lapply(dvs_lme, anova)
+
+pvals <- sapply(aovres,function(x) unlist(x)[8])
+aovdf <- data.frame(p=sapply(pvals, prettyProb))
+fscores <- sapply(aovres, function(x) unlist(x)[6])
+aovdf <- cbind(aovdf,f=sapply(fscores, prettyPrint))
+aovdf <- cbind(aovdf,d=sapply(aovres, function(x) unlist(x)[2]))
+rownames(aovdf) <- names(dvs)
+
+condres <- typingmeans %>% 
+  select(-Participant, -Duration) %>%
+  group_by(Condition) %>% 
+  # Calculate mean and sd for each condition
+  summarise_each(funs(mean,sd)) %>% 
+  as.data.frame() %>%
+  gather(variable, value, -Condition) %>%
+  # Split variable from statistic type
+  separate(variable, c("Measure","stat"), sep='_') %>%
+  mutate(value=prettyPrint(value)) %>%
+  # Put mean and sd in same row again
+  spread(stat,value)  %>% 
+  # Combine variables into result for table
+  mutate(result=paste(mean,' (',sd,')',sep='')) %>%
+  select(-mean, -sd) %>%
+  spread(Condition, result) 
+
+typingresults <- cbind(aovdf, condres) %>%
+  mutate(`RM ANOVA`=paste("F(",d,") = ",f,",\\newline ",p,sep='')) %>%
+  select(-p,-f,-d)
+
+rownames(typingresults) <- typingresults$Measure
+
+# post-hoc comparison
+
+tukeyres <- lapply(dvs_lme, function(x)
+  summary(glht(x, linfct=mcp(Condition = "Tukey")), test = adjusted(type = "bonferroni")))
+
+tukeyps <- sapply(tukeyres, function(x) x$test$pvalues)
+# Strip out text (we just want condition numbers)
+rownames(tukeyps) <- gsub('[^-0-9]','',rownames(tukeyps))
+
+tukeysigs <- tukeyps < 0.05
+tukeypairs <- apply(tukeysigs, 2, function(x) names(x)[which(x==TRUE)])
+tukeydf <- data.frame(tukey=unlist(lapply(tukeypairs, function(x) paste(x, collapse=', '))))
+
+typingresults <- cbind(typingresults[match(rownames(tukeydf),rownames(typingresults)),], `Tukey post-hoc`=tukeydf$tukey)
+
+typingresults %>%
+  select(-Measure) %>%
+  xtable(label="table:vrtyping", caption=c(
+    "VR typing results. Total Error Rate from \\protect\\cite{SouWil03}. First Key Accuracy is between 1 (100\\% accurate) and 0 (0\\% accurate). Tukey's tests show statistically significant pairwise differences between conditions,  $p \\textless 0.05$.","VR typing study results"),
+         align = paste(c(rep('X',ncol(typingresults)-1),'l'),collapse='')) %>%
+  print(table.placement = "!p", sanitize.text.function = function(x) x,
+        tabular.environment = 'tabularx', width='\\linewidth',
+         hline.after=NULL,
+         add.to.row = list(pos=list(-1,0,nrow(typingresults)), command=c('\\toprule \n','\\midrule \n','\\bottomrule \n')))
+@
+
+    \end{landscape}
+    \clearpage
+%}
+
+
+\clearpage
+\begin{landscape}
+<<vr-typingaccuracy, cache=TRUE, eval=TRUE, dev='png', fig.pos='!p', fig.cap="VR first keypress accuracy and delay across conditions. Users in the `1 Reality Baseline' condition had no view of the keyboard, they quickly made inaccurate keypresses to orient themselves. This contrasts with users in the AV (3 and 4) conditions, largely achieving high accuracy but with some delay introduced.", fig.scap="VR first keypress accuracy and delay across conditions", fig.height=5, fig.width=9>>=
+require(dplyr)
+require(ggplot2)
+typingmeans <- read.csv('../data/typingmeans.csv',check.names=FALSE) %>%
+  mutate(`Duration to First Key (sec)`=`Duration to First Key (sec)`/1000,
+         `First Key Correct`=`First Key Correct`*100)
+ # select(`Duration to First Key (sec)`,`First Key Correct`)
+
+ggplot(typingmeans, aes(x=`Duration to First Key (sec)`, y=`First Key Correct`, shape=Condition, colour=Condition)) +
+  geom_point(size=6) + xlim(0,6) + ylab("First Keypress Accuracy (%)") +
+  theme_bw(base_size = 12, base_family = "Helvetica") + theme(panel.border = element_blank()) +
+  theme(legend.position="bottom")
+
+@
+\end{landscape}
+\clearpage
+
+\section{Engagement-Dependent Mixed Reality}
+The aim of this chapter was to exploit engagement-dependent approaches to enable a broad range of interactions with both reality and virtuality, as the user engages with elements of either. The typing study provided a quantitative insight in how these mechanisms impact the performance of interaction. While typing is useful for media retrieval, in particular when producing textual queries, it remains somewhat tangential to the larger goal of considering engagement with VR media. This section briefly discusses the use of engagement-dependent AV to enable a range of mixed reality interactions as part of a media experience. The impact of these approaches on the user's sense of presence and immersion in their VR experience is explored in further studies by \cite{McGBolMur15}. An online overview video of the work in this chapter, as well as the additional studies, is available\footnote{\url{http://www.dannyboland.com/CHI-VR/} (20/02/15)}.
+
+\subsection{Incorporating Objects}
+The VR desktop setup depicted earlier in \figref{fig:vr-typingsetup}, and used for incorporating a keyboard into VR, can also be used to incorporate other desktop objects. Figure \ref{fig:vr-blending} depicts the blending of a number of desktop items related to media interactions: the keyboard for querying and control, as well as food and drink. Three engagement-dependent AV strategies were explored. \textit{Minimal blending} incorporates elements around the users' hands as they bring their hands into view, allowing the user to explore the real space and use objects while minimising impact on immersion in VR. \textit{Partial blending} incorporates all interactive objects likely to be engaged with as the user extends their hands to interact. \textit{Full blending} reflects the status quo in industry where gestures are used to switch between a real or a virtual view.
+
+\subsection{Incorporating People}
+In a survey of VR users, \cite{McGBolMur15} identified that the user's lack of awareness of people around them is a pressing issue. An interesting aspect of this issue is that the user's engagement with others is a social, affective aspect of engagement and not the easily quantifiable interactions thus far considered in this thesis. Another issue is that a user is unable to choose to engage with a person if they are not first made aware of their presence. There is thus an implicit baseline of engagement with others, who are represented in \figref{fig:vr-ghosts} as ghost-like figures. As these figures are engaged with, detected in terms of gaze or conversation, the alpha value on the blending is changed such that the ghost-like figures become fully present in the VR environment.
+
+\begin{figure}[p]
+ %\vspace{-5pt}
+  \centering
+  \includegraphics[width=\textwidth]{"blending-vertical"}\\
+  \caption[Blending objects into VR]{Top: \textit{Minimal blending} (reality around user's hands). Middle: \textit{Partial blending} (all interactive objects). Bottom \textit{Full blending} (all of reality)}
+  %\vspace{-10pt}
+  \label{fig:vr-blending}
+\end{figure}
+  
+\clearpage
+\begin{landscape}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=\linewidth]{"ghosts"}\\
+  \caption[Blending proximate people into VR]{People in the surrounding real environment are incorporated into VR based on engagement. Given the implicit social engagement of a person being in the same real environment, ghost-like figures are blended into VR (middle). As the user engages with these figures, either by gaze or conversation, the alpha value of the blending is adjusted to bring them fully into the VR environment (right).}
+  \label{fig:vr-ghosts}
+\end{figure}
+\end{landscape}
+\clearpage
+
+\section{Generalisability}
+At the heart of the work in this chapter is an interaction with an autonomous agent, utilising some inference about user intent conditioned upon their engagement. While a departure from information retrieval, this work demonstrates the applicability of engagement-dependent interaction beyond retrieval interfaces. Whether adaptivity is applied in a recommender system or an interaction with conditional dynamics, a key outcome from this thesis is the proposal of user engagement as a contextual variable for such inferential systems. Interactions will increasingly involve a negotiation with autonomous agents, whether to manage large libraries of content, a VR experience, or even an autonomous vehicle for example. There remains a need to explore the mechanisms by which users can engage or disengage in controlling such interactions, or delegate such control to an agent. This thesis was motivated by the burden of too much control - `too-much-choice', however it will be equally important to avoid the frustration of users being disempowered by too little control.
+
+Considering the concept of engagement-dependent interaction in the context of VR has facilitated the solution of usability issues facing VR HMD users. Users were able to interact with real objects and peripherals from the context of a VR environment, through selective engagement-dependent Augmented Virtuality. This approach enabled interaction with reality, while preserving presence and immersion in VR, by selectively blending relevant parts of reality with virtuality. This was done in an engagement-dependent manner, inferring when and how much to blend reality into virtuality based on the user's engagement with objects in reality. This approach is distinct from past work in VR, seeking to preserve presence and place illusion with a mechanism that minimises the blending of reality.

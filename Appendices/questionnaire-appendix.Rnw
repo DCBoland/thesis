@@ -1,0 +1,103 @@
+\chapter{Combined Music Engagement Questionnaire}
+\label{app:questionnaire}
+\lettrine{T}{he} following music engagement and use questionnaire is based on similar questionnaires in \cite{GreLam11, KraNorHew14}. These previous questionnaires were combined, and the wording of some questions updated to reflect digital music listening. This questionnaire begins with two questions from \citeauthor{KraNorHew14}'s questionnaire, asking participants to tick any selection methods and devices that they use when listening to music. The remaining questions are adapted from \citeauthor{GreLam11}'s questionnaire and prompt participants to respond using a five point Likert scale. 
+\clearpage
+
+\subsection{Questionnaire}
+The aim of this questionnaire is to gather data on people's music listening behaviour. You will be asked to provide your Last.fm username so that your publicly shared Scrobbles can be analysed. Completing this questionnaire is taken as consent for this analysis.
+
+Please enter your Last.fm username:\\
+\fbox{Username \hspace{1in}}
+
+We will only analyse your public Scrobbles to identify your music-listening behaviour.
+
+\emph{Think about the last few times you listened to music and tick the selection methods you used.}\\
+\begin{tabularx}{\columnwidth}{@{}cX}
+$\square$ & I did not have any control\\
+$\square$ & It was performed live at the time\\
+$\square$ & Watched TV\\
+$\square$ & Personal premade playlist\\
+$\square$ & Specific artist\\
+$\square$ & Premade playlist - by someone else\\
+$\square$ & Specific song\\
+$\square$ & Listened to the radio\\
+$\square$ & Specific album\\
+$\square$ & Someone I was with chose\\
+$\square$ & Random/Shuffle\\
+$\square$ & Computer Recommendation\\
+$\square$ & Website streaming\\
+$\square$ & Other:\\
+& \fbox{Please state\hspace{1in}}\\
+\end{tabularx}
+
+\emph{Please tick the devices you often use to listen to music.}\\
+\begin{tabularx}{\columnwidth}{@{}cX}
+$\square$ & Mobile MP3\\
+$\square$ & Mobile Phone\\
+$\square$ & Mobile CD\\
+$\square$ & Computer - own music\\
+$\square$ & Computer - streamed music\\
+$\square$ & Computer - music store in the cloud\\
+$\square$ & Stereo - MP3\\
+$\square$ & Stereo - CD\\
+$\square$ & Radio\\
+$\square$ & TV\\
+$\square$ & In public - live\\
+$\square$ & In public - recorded\\
+\end{tabularx}
+
+\newpage
+
+\emph{How much control do you like to have over the music you listen to?}\\
+\begin{tabularx}{\columnwidth}{@{}cX}
+$\square$ & I generally listen to whatever is played\\
+$\square$ & I listen to a particular radio channel or recommendations in a style of music I like\\
+$\square$ & Sometimes I like to choose, sometimes I'll listen to radio or recommendations\\
+$\square$ & I generally prefer listening to music I've chosen e.g. in a playlist I made\\
+$\square$ & I like to have full control over which album or song I'm listening to\\
+\end{tabularx}
+
+\emph{How much music do you have in your collection (in iTunes, MP3 player, Spotify etc)?}\\
+\begin{tabularx}{\columnwidth}{@{}cX}
+$\square$ & Up to 5 albums or about 50 MP3s\\
+$\square$ & Up to 25 albums or about 250 MP3s\\
+$\square$ & Up to 125 albums or about 1250 MP3s\\
+$\square$ & Up to ~5000 albums or about 50,000 MP3s\\
+$\square$ & More than 5000 albums or 50,000 MP3s\\
+\end{tabularx}
+
+\emph{What best describes your music collection?}\\
+\begin{tabularx}{\columnwidth}{@{}cX}
+$\square$ & All my collection is organised by hand in a certain way\\
+$\square$ & My collection is broadly categorised by hand (e.g. genre or mood playlists/folders)\\
+$\square$ & My music system organises my collection for me\\
+$\square$ & There is no specific organisation to my music collection\\
+$\square$ & I can never find anything when I want it!\\
+\end{tabularx}
+
+\emph{Can you remember the first album you bought?}\\
+\begin{tabularx}{\columnwidth}{@{}cX}
+$\square$ & Yes, I can remember what it was and exactly when and where I bought it\\
+$\square$ & I can remember what it was, but not exactly when I bought it\\
+$\square$ & Not off hand, I probably could if I thought about it\\
+$\square$ & I doubt it\\
+$\square$ & I have no idea\\
+\end{tabularx}
+
+\emph{Why did you make your last music purchase?}\\
+\begin{tabularx}{\columnwidth}{@{}cX}
+$\square$ & I had to have it, I heard it and I just had to go and buy it\\
+$\square$ & I knew I would like it, because I've built up a knowledge of what I like\\
+$\square$ & I'd heard a couple of the tracks I liked so bought it to see if the whole thing was good\\
+$\square$ & It was recommended to me, so I thought I'd give it a go\\
+$\square$ & I can't remember\\
+\end{tabularx}
+
+\emph{Lyrics in music, which best describes you?}\\
+\begin{tabularx}{\columnwidth}{@{}cX}
+$\square$ & I never really listen to the lyrics in songs\\
+$\square$ & With some of my favourite music I know the lyrics, but otherwise I don't really pay attention to the lyrics in songs\\
+$\square$ & I like to know the lyrics so I can sing along\\
+$\square$ & I have to know the lyrics because it's central to understanding what the artist is trying to convey\\
+$\square$ & I have to know the lyrics because I don't want to be singing along to something that might be at odds with my beliefs\\
+\end{tabularx}

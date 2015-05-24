@@ -1,0 +1,122 @@
+\chapter{Pressure Sensing}
+\label{chap:pressuresensing}
+\lettrine{P}{ressure} input can be used as a way for users to explicitly denote their engagement, using a metaphor of physical exertion as engagement. This is employed in \chapref{chap:eng-dep}, where the user can set their level of engagement in a music retrieval interaction, with an adaptive interface responding accordingly. The addition of a pressure input modality to an interaction requires the use of a pressure sensor and the details of the implementation used in this thesis are given in this chapter. Pressure input is noisy and, if mapped directly to the interaction, will be difficult for users to control. A \citeauthor{Fit54}' law \citeyearpar{Fit54} study is performed in order to characterise pressure input and users' ability to control it, and in particular to investigate the utility of low-pass filtering in improving the usability of pressure input.
+\newpage
+
+\section{Hardware}
+The force applied by the user was measured using an Interlink Electronics Force Sensitive Resistor (FSR)\footnote{\url{https://www.sparkfun.com/datasheets/Sensors/Pressure/fsrguide.pdf}}. The conductance of this sensor is linearly proportional to force within human ranges, as shown in \figref{fig:fsr-rescurve}. As current flow is linear with conductance (and thus the applied force), a transimpedance amplifier or `current-to-voltage convertor' is used to obtain a voltage that represents force (depicted in \figref{fig:transamp}). This approach takes advantage of the linear force--conductance property of the sensor at human input levels, avoiding the issues of a non-linear input modality. This setup resulted in a pressure space of 10N, which was used in developing the prototype system in \chapref{chap:eng-dep}. In this implementation, an mbed\footnote{\url{http://www.mbed.org} (06/12/14)} microcontroller was used to connect the FSR to a Microsoft Surface Pro tablet running Windows 8, which ran the prototype software. The prototype software made use of a low-pass filter to make the pressure input more usable, and the selection of the filter properties is explored in this chapter. This exploration uses the same hardware setup, with an experimental interface configured for a \cite{Fit54} targeting study.
+
+\begin{figure}
+\includegraphics[resolution=300,width=\textwidth]{fsr-rescurve}
+\caption[Force Sensitive Resistor characteristic input response]{Characteristics of the Interlink Force Sensitive Resistor (FSR) used for pressure-sensing. At low levels of force (within human ranges) the relationship with conductance is approximately linear, and thus usable for Human-Computer Interaction. Figure taken from the Interlink FSR integration guide.\footnotemark[1]}
+\label{fig:fsr-rescurve}
+\end{figure}
+
+\newpage
+
+\begin{figure}
+\center
+\includegraphics[resolution=300,width=0.8\textwidth]{transamp}
+\caption[Transimpedance amplifier for pressure sensor]{The transimpedance amplifier or `current to voltage' convertor produces a voltage output that is linear with the current input. The conductance (and thus current) of the FSR is approximately linear with force across the range of human input, yielding a linear force--voltage relationship. Figure taken from the Interlink FSR integration guide.\footnotemark[1]}
+\label{fig:transamp}
+\end{figure}
+
+\section{Low Pass Filter}
+Initial prototyping with the pressure sensor used the raw measured values. These showed a high degree of noise, rendering control difficult. While the sensor itself is subject to some thermal noise and hysteresis, the majority of the noise observed is likely due to muscle tremor. In order to mitigate this issue, the use of a low-pass filter is explored. A low-pass filter attenuates the high frequency content of a signal -- in this case, the erratic movement due to muscle tremor. The low frequency content remains, i.e.\ the the user's controlled movement through the pressure input space. The selection of appropriate filter parameters is essential, as filtering too aggressively would make the on-screen feedback of input pressure noticeably delayed from the user's input. In extreme cases, rapid changes in input pressure with a slow on-screen response could make the interaction difficult for the user to control. %with them oscillating around their target.
+
+The implementation of the low-pass filter uses the simple recurrence relation form, also known as the exponentially weighted moving average:
+\begin{align*}
+y_i &= y_{i-1} + \alpha (x_i - y_{i-1}),\\
+\intertext{where $\alpha$ is a smoothing factor within the range: $0 < \alpha < 1$. It can be related to an RC low-pass filter time constant $\tau$, where $f_s$ is the sampling frequency. In this work, $f_s=325Hz$.}
+\alpha &= \frac{1}{f_s \, \tau + 1}.
+\end{align*}
+
+\clearpage
+\begin{landscape}
+<<pressure-analysis, dev='png', fig.cap="Results from a Fitt's law study of pressure interaction across a range of low-pass filter \\emph{time constant} $\\tau$ values. The reciprocal of the slope of the line indicates the interaction throughput, thus a less steep line is preferable. Note that for the lowest $\\tau$ values at the smallest distance, users struggled to control the pressure and \\citeauthor{Fit54}' law does not apply.", fig.scap="Fitt's law study of pressure interaction across filter values", fig.height=5, fig.width=9, fig.pos='hbtp'>>=
+library(dplyr)
+library(ggplot2)
+
+trials <- tbl_df(read.csv("../data/pressureTrials.csv",header=FALSE))
+colnames(trials) <- c("PID","TRIALID",  "PRESSURE_TARGET",  "TARGET_DISTANCE",  "FILTER"	,"PRESSURE_VALUE",	"START_TS",	"END_TS",	"ISTRAINING")
+
+# Participants (with unique PID) were instructed to apply pressure to reach a target level. 
+# Feedback of applied pressure was shown with an on-screen bar. A line marked the target pressure. 
+# Various FILTER levels were applied (given as alpha for a low-pass filter as recurrence relation, converted to time constant tau below). 
+# PRESSURE_TARGET and PRESSURE_VALUE are in an arbitrary (and reversed) scaling from the sensor.
+# START_TS and END_TS are timestamps for the start and end of each trial.
+# ISTRAINING is a boolean for training trials, which should be discarded if TRUE.
+
+# Rough sample frequency
+fs <- 325
+
+trials <- trials %>%
+  # Discard erroneous trials (training or user didn't press the sensor)
+  filter(ISTRAINING == "False", PRESSURE_VALUE < 200) %>%
+  # Calculate movement time
+  mutate(MT = (END_TS - START_TS)/1000) %>% 
+  # Correct target distance into Newtons
+  mutate(TARGET_DISTANCE = TARGET_DISTANCE / 14.5) %>%
+  # Discard trials where users were +/- 2 newtons from target
+  mutate(Perr = abs(PRESSURE_TARGET - PRESSURE_VALUE)) %>%
+  filter(Perr < 28) %>%
+  # Calculate effective widths
+  group_by(FILTER,TARGET_DISTANCE) %>%
+  mutate(We = 4.133 * sd(PRESSURE_VALUE))
+  
+# Get mean Movement Time per condition (Filter x ID)
+conditionMT <- trials %>%
+  # Calculate index of difficulty
+  mutate(ID = log2(TARGET_DISTANCE / We) + 1) %>%
+  group_by(FILTER, TARGET_DISTANCE, ID) %>%
+  summarise(MT = mean(MT)) %>%
+  mutate(Tau = round(1/fs * (1-FILTER)/FILTER,2))
+  
+# Plot mean time against filter
+#ggplot(conditionMT, aes(x=Tau,y=MT,colour=factor(TARGET_DISTANCE))) + geom_point() + geom_line() + theme_bw()
+
+# Tidy up for plotting
+conditionMT$Tau <- factor(conditionMT$Tau)
+
+# Plot mean time against ID (uncorrected ID)
+ggplot(conditionMT, aes(x=TARGET_DISTANCE,colour=Tau,y=MT)) + geom_point() + geom_line() +
+  ylim(1,4) + theme_bw() + theme_bw(base_size = 12, base_family = "Helvetica") +
+  xlab("Target Distance (Newtons)") + ylab("Movement Time (secs)") +
+  scale_colour_discrete(name = bquote(tau - 'TC (secs)')) + 
+  theme(panel.border=element_blank()) #, panel.grid=element_blank())
+@
+\end{landscape}
+\clearpage
+
+\section{Pressure Input Dynamics Study}
+A \cite{Fit54} targeting study was conducted to identify an appropriate filter time constant $\tau$ for Human Computer Interaction. Such a study involves asking participants to repeatedly select targets at a range of distances, in this case with the use of the pressure input. The \emph{throughput} (in bits per second) of an interface can be determined by capturing the \emph{movement time} (MT) of the user's targeting, as well as adjusting for their accuracy \citep{Zha04}. Given the standard \citeauthor{Fit54}' law form:
+\begin{align*}
+\text{MT} &= a + b \, \text{ID},\\
+\intertext{MT is linear with the \emph{index of difficulty} (ID), which is a function of target distance and width. Throughput (TP) is given in ISO 9241-9 using the slope-inverse method:}
+\text{TP} &= \frac{\text{ID}_e}{\text{MT}},\\
+\intertext{making the assumption of a zero intercept, i.e.\ $a = 0$. $\text{ID}_e$ reflects the \emph{empirical index of difficulty}, with target width having been adjusted to fit the error distribution observed. The zero intercept assumption is unncessary however, by applying linear regression with $\text{TP} = \frac{1}{b}$ (see \cite{Zha04} for a discussion on throughput calculation).}
+\end{align*}
+
+\vspace{-0.8in}
+\subsection{Selecting a Filter Time Constant}
+16 users were recruited to perform the targeting study. The study comprised of 4 target distances $\times$ 15 repetitions $\times$ 8 time constant $\tau$ values $\times$ 16 participants, giving 7680 trials (an additional 480 were used as training trials).  The average movement time per target distance for each filter is depicted in \figref{fig:pressure-analysis}. For the filters $\tau \leq 0.26$, the MT at the $2N$ distance was higher than would be predicted by the linear \citeauthor{Fit54}' law relationship. Users struggled to control the pressure level at the small distance with these least amounts of filtering. 
+
+The results of the \citeauthor{Fit54}' law regression are given in table \ref{table:pressurefitts}. The $r^2$ values for the first three filters shows they do not conform to \citeauthor{Fit54}' law and thus their TP is invalid. The next filter, $\tau = 0.51$, thus has the highest usable TP and is adopted for the work in this thesis.
+\vspace{-0.1in}
+
+<<fitts-regression, cache=TRUE, dependson=c('pressure-analysis'), results="asis">>=
+# Linear regression for each filter (Tau)
+require(xtable)
+fitts <- conditionMT %>%
+  group_by(Tau) %>%
+  do(lmfit = lm(MT ~ ID, data=.)) %>%
+  do( data.frame( `$\\tau$` = as.numeric(levels(.$Tau)[.$Tau]),
+                  a = .$lmfit$coefficients[1],
+                  TP = 1/.$lmfit$coefficients[2],
+                  `$r^2$` = summary(.$lmfit)$r.squared,
+                  check.names = F))
+x <- xtable(t(fitts),digits=2,caption=c("Pressure input throughput from Fitts' law regression"), label="table:pressurefitts")
+print(x, table.placement="!b", sanitize.text.function = function(x) x, include.colnames=FALSE,
+         hline.after=NULL,
+         add.to.row = list(pos=list(-1,1,nrow(x)), command=c('\\toprule \n','\\midrule \n','\\bottomrule \n')))
+@
