@@ -1,7 +1,7 @@
 \section{User-Centred Feature Selection}
 \label{sec:userfeatures}
 
-<<playlists-setup>>=
+<<playlists-setup, cache=TRUE>>=
 library(infotheo)
 library(reshape)
 library(ggplot2)
