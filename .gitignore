@@ -1,6 +1,7 @@
 ### R files
 .Rproj.user
 *.Rproj
+*.Rhistory
 
 ### knitr cache
 cache/
