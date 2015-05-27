@@ -50,7 +50,7 @@
 
 \begin{document}
 
-<<setup, cache=FALSE, echo=FALSE>>=
+<<setup, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE>>=
 library(knitr)
 library(ggplot2)
 # global chunk options
