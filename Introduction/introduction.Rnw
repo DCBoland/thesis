@@ -79,7 +79,7 @@ The analyses in this thesis make use of data collected in studies from participa
 \url{http://www.github.com/dcboland/}
 
 A large proportion of the data in this dataset has already been made available as the \textit{Streamable Playlists with User Data (SPUD)} dataset, which includes playlists created by users, song metadata and some user listening histories. An interactive figure along with correpsonding R code for importing data from \textit{SPUD} and producing the analyses and plots is available at:\\
-\url{http://www.dcs.gla.ac.uk/~daniel/spud/}\\
+\url{http://www.dannyboland.com/spud/}\\
 
 The information-theoretic feature selection in \chapref{chap:info-theo} and the example system in \chapref{chap:eng-dep} make use of proprietary music feature data, and as such this data is not made available. The MoodAgent features are commercially sensitive, and thus not included in the \textit{SPUD} dataset. Even with user data and the required computational power, large-scale music analyses require licensing arrangements with content providers, which often vary from country to country, presenting a serious challenge to academic MIR research. The adoption of commercially provided features has allowed the demonstration of the information-theoretic approach, and while the audio stream links are distributed, it is unlikely that many MIR researchers will have the resources to replicate all of these large scale analyses. The CoSound\footnote{\url{http://www.cosound.dk/} Last accessed: 30/04/14} project is an example of industry collaborating with academic research and state bodies to navigate the complex issues of music licensing and large-scale analysis.
 
