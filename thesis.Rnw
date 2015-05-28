@@ -176,8 +176,7 @@ prettyProb <- function(x) {
 @
 
 \addcontentsline{toc}{part}{Bibliography}
-%\bibliographystyle{IEEEtran}
-\bibliographystyle{plainnat}
+\bibliographystyle{dannybib}
 \bibliography{thesis}
 
 \end{document}
