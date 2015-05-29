@@ -60,14 +60,26 @@ ggplot(population, aes(day, users, colour=histogram)) + geom_line() +
 @
 
 \subsection{Modelling Hazard and Survival}
-Further detail can be gained by investigating \emph{cohorts} of users, where users joined the service around the same time. This approach is inspired by similar analyses of animal populations, where survivorship curves capture the animals' survival probabilities over their lifetimes. Three cohorts were used to investigate the changes in how users engaged with music service, with each cohort representing a period of \Sexpr{prettyPrint(cohort_window)} days around a point in the service's lifetime (\Sexpr{cohorts} days). For each cohort, \Sexpr{prettyPrint(cohort_size)} users were sampled from the period to ensure equivalent comparison.
+Further detail can be gained by investigating \emph{cohorts} of users, where users joined the service around the same time. This approach is inspired by similar analyses of animal populations, where survivorship curves capture the animals' survival probabilities over their lifetimes. Three cohorts were used to investigate the changes in how users engaged with the music service, with each cohort representing a period of \Sexpr{prettyPrint(cohort_window)} days around a point in the service's lifetime (\Sexpr{cohorts} days). For each cohort, \Sexpr{prettyPrint(cohort_size)} users were sampled from the period to ensure equivalent comparison. 
 
-<<survival-survivorship, dev='png', fig.scap="Survival function for a music service startup", fig.cap="The survival function captures the proportion of users still active for each cohort. The earlier cohorts have an adoption rate >40\\%, which tails off slowly. The 500 days cohort has a much lower adoption rate, immediately dropping to less users than remain from the earliest cohort.", fig.height=6, fig.width=7, fig.pos='btph', dependson=c("survival-setup")>>=
+The initial fall in survival seen in \figref{fig:survival-survivorship} represents the \emph{adoption rate}, with less users choosing to adopt the service in their day-to-day music listening in the 500 days cohort. The scale of the change in user engagement for the 500 day cohort is emphasised by those new users immediately falling below the number of users remaining from the earlier cohorts having joined some 200 or 400 days prior.
+\vspace{-0.2in}
+
+<<survival-survivorship, dev='png', fig.scap="Survival function for a music service startup", fig.cap="The survival function captures the proportion of users still active for each cohort. The earlier cohorts have an adoption rate >40\\%, which tails off slowly. The 500 days cohort has a much lower adoption rate, immediately dropping to less users than remain from the earliest cohort.", fig.height=5.5, fig.width=7, fig.pos='btph', dependson=c("survival-setup")>>=
+par(mar=c(5,4,3,2))
 plot(survmodel, lty=1:3, col=2:4, ylab='Survival Function S(t)', xlab='t', fun=function(x) ifelse(x==1,NA,x))
 legend(800, 0.95, paste(cohorts, "Days Cohort"), lty = 1:3, col=2:4)
 @
 
-<<survival-hazard, dev='png', fig.scap="Cumulative hazard function for a music service startup", fig.cap="The cumulative hazard function captures the hazard or risk of leaving that each user is exposed to over their lifetime. The 500 days cohort is immediately exposed to a greater risk of leaving than the accumulated hazards from the previous cohorts.", fig.height=6, fig.width=7, fig.pos='btph', dependson=c("survival-setup")>>=
+\newpage
+
+An alternative view of these cohorts' engagement is to compute the cumulative hazard function, as in \figref{fig:survival-hazard}. This figure is logarithmically scaled, which gives a clearer view of the hazards faced by a given user (accounting for the exponential decay in users). The survival and hazard functions shown in these figures can be acquired using the \cite{KapMei58} estimator, which in the case of no censoring, is simply derived from the empirical distribution function. \cite{Cox72} proportional hazards model regression can be used to identify factors related to the differences in survivorship, though such relationships are commercially sensitive.
+
+The cumulative hazard of a user leaving the service is immediately higher for the users in the 500 day cohort than for the users of the previous cohorts, which has been accumulated over many hundreds of days. Potential causes for this change in new users' engagement with the service could relate to the entrance of competitors into the market. The cumulative hazard rises sharply after the announcement of the service's discontinuation, until the total cumulative hazard of every user having left. 
+\vspace{-0.2in}
+
+<<survival-hazard, dev='png', fig.scap="Cumulative hazard function for a music service startup", fig.cap="The cumulative hazard function captures the hazard or risk of leaving that each user is exposed to over their time with the musis service. The 500 days cohort is immediately exposed to a greater risk of leaving than the accumulated hazards from the previous cohorts, indicating a change in new users' relationship with the service.", fig.height=5.5, fig.width=7, fig.pos='btph', dependson=c("survival-setup")>>=
+par(mar=c(5,4,3,2))
 plot(survmodel, col=2:4, lty=1:3, fun="cumhaz", xlab="Days", ylab="Cumulative Hazard H(t)")
 legend(0, 10, paste(cohorts, "Days Cohort"), lty = 1:3, col=2:4)
 @

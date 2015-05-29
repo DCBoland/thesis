@@ -20,5 +20,5 @@ The commands in listing \ref{lst:build} will download and build this thesis, as 
 \section{R Environment \& Packages}
 \cite{R}
 
-\chapter{Accompanying Data}
+\newpage
 \section{Database schema}
