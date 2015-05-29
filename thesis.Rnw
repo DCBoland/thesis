@@ -37,7 +37,7 @@
 \usepackage{environ}
 \usepackage{tikz}
 \usetikzlibrary{calc,matrix}
-\usepackage{balance}
+\usepackage{listings}
 \hyphenation{Internet analysis analyse}
 \newcommand{\figref}[1]{\figurename~\ref{#1}}
 \newcommand{\eqnref}[1]{eqn.\ \ref{#1}}

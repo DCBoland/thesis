@@ -1,6 +1,22 @@
 \chapter{Building This Thesis}
 \label{buildinfo}
 
+This thesis is made available as an open source, reproducible document. The data and code used to generate the analyses and graphs within this document are made available for reuse and inspection under the MIT open source license. The data from the studies described in this work is also included, to support these analyses. The code is structured as an example of \emph{literate programming}, interleaving the \LaTeX and R code used in making the arguments of this thesis. 
+
+\newpage
+
+The commands in listing \ref{lst:build} will download and build this thesis, as well as meeting dependencies such as downloading the SPUD dataset (\chapref{chap:measures}) and building required R packages:
+
+\lstset{basicstyle=\ttfamily,
+  showstringspaces=false,
+}
+\lstset{frameround=fttt}
+\begin{lstlisting}[caption={Building the thesis},label={lst:build}]
+    # git clone http://www.github.com/DCBoland/thesis.git
+    # cd thesis
+    # make
+\end{lstlisting}
+
 \section{R Environment \& Packages}
 \cite{R}
 
