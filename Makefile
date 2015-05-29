@@ -17,6 +17,9 @@ data/spud.sqlite:
 	# Remove zip once extracted OK
 	if [ -e data/spud.sqlite ]; then rm data/spud.zip; fi;
 
+compress:
+	gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/prepress -dNOPAUSE -dQUIET -dBATCH -sOutputFile=thesis-min.pdf thesis.pdf
+
 clean:
 	rm -f *.pdf *.toc *.log *.cb *.cb2 *.aux *.lot *.tex *.blg *.bbl
 	
