@@ -4,7 +4,7 @@
 %%
 %% The original source files were:
 %%
-%% merlin.mbs  (with options: `ay,nat,seq-yr,nm-rev,ed-rev,jnrlst,nmft,nmft-sc,nmfted,keyxyr,yr-par,note-yr,volp-sp,num-xser,edpar,pp,xedn,nfss,')
+%% merlin.mbs  (with options: `ay,nat,seq-yrr,nm-rev,ed-rev,jnrlst,nmft,nmft-sc,nmfted,keyxyr,yr-par,note-yr,volp-sp,num-xser,edpar,pp,xedn,nfss,')
 %% ----------------------------------------
 %% *** Daniel Boland's Publications Style ***
 %% 
@@ -1327,6 +1327,16 @@ FUNCTION {author.editor.sort}
     { author sort.format.names }
   if$
 }
+FUNCTION {negate.year}
+{ year empty$
+    { "99999" }
+    { year #1 #1 substring$ chr.to.int$ #105 swap$ - int.to.chr$
+      year #2 #1 substring$ chr.to.int$ #105 swap$ - int.to.chr$ *
+      year #3 #1 substring$ chr.to.int$ #105 swap$ - int.to.chr$ *
+      year #4 #1 substring$ chr.to.int$ #105 swap$ - int.to.chr$ *
+    }
+    if$
+}
 FUNCTION {editor.sort}
 { editor empty$
     { key empty$
@@ -1358,7 +1368,7 @@ FUNCTION {presort}
   'sort.label :=
   sort.label
   *
-  "    " * year field.or.null *
+  "    " * negate.year field.or.null *
   "    " * cite$ *
   #1 entry.max$ substring$
   'sort.key$ :=
@@ -1420,7 +1430,7 @@ FUNCTION {bib.sort.order}
 { sort.label
   "    "
   *
-  year field.or.null sortify
+  negate.year field.or.null sortify
   swap$
   *
   "    " * cite$ *
