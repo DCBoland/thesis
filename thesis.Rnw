@@ -4,8 +4,8 @@
 \usepackage{graphics}
 \usepackage{graphicx}
 \usepackage{algorithmic}
-\usepackage{algorithm}
-\usepackage{mcaption}
+%\usepackage{algorithm}
+%\usepackage{mcaption}
 \usepackage[font=scriptsize]{subfig}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -23,7 +23,7 @@
 
 \usepackage{color}
 \usepackage{changebar}
-\usepackage{soul}
+%\usepackage{soul}
 
 \usepackage{pdfpages}
 \usepackage{pdflscape}
@@ -101,7 +101,7 @@ prettyProb <- function(x) {
 %Publications list - bibtex doesn't know to run on bu1.aux, remember to do it manually.
 \begin{bibunit}[unsrtnat]
 \setlength{\bibsep}{5pt plus 1ex}
-\nocite{BolMclMur15, BolMur15, McGBolMur15,  BolMur14, MclBolBre14, BolMur13, BolMclMur13}
+\nocite{BolMcLMur15, BolMur15, McGBolMur15,  BolMur14, MclBolBre14, BolMur13, BolMcLMur13}
 \renewcommand{\bibname}{List of Contributing Publications}
 \vspace{-1in}
 \putbib[mypubs]
