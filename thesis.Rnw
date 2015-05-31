@@ -99,7 +99,7 @@ prettyProb <- function(x) {
 \cleardoublepage
 
 %Publications list - bibtex doesn't know to run on bu1.aux, remember to do it manually.
-\begin{bibunit}[unsrtnat]
+\begin{bibunit}[dannypubs]
 \setlength{\bibsep}{5pt plus 1ex}
 \nocite{BolMcLMur15, BolMur15, McGBolMur15,  BolMur14, MclBolBre14, BolMur13, BolMcLMur13}
 \renewcommand{\bibname}{List of Contributing Publications}
