@@ -1,6 +1,6 @@
 % =============================================================================
 % Glasgow University thesis format, following as closely as possible:
-% http://theses.gla.ac.uk/gettingstarted/format.html#layout
+% http://www.gla.ac.uk/services/library/enlighten/theses/thesispreparationguidelines.pdf
 % 
 % =============================================================================
 \NeedsTeXFormat{LaTeX2e}
@@ -11,13 +11,16 @@
 %  2009/11/12 Modified by Karen Renaud for PhD thesis %
 %  2011/03 Stephen Strowes <sds@dcs.gla.ac.uk> Heavily modified to match %
 %   Glasgow thesis format.%
+%  2015/05 Daniel Boland <daniel@dcs.gla.ac.uk> Use geometry package for %
+%  margins, with gutter and nogutter options for this class. Other minor %
+%  tweaks..
 % ]
 \ProvidesClass{glasgowthesis}
 \DeclareOption{nogutter}{
-  \PassOptionsToPackage{bindingoffset=0cm, left=2.75cm, right=2.75cm, top=1.75cm, bottom=1.75cm, includehead, includefoot}{geometry}
+  \PassOptionsToPackage{bindingoffset=0cm, left=2.75cm, right=2.75cm, top=1.8cm, bottom=1.8cm, includehead, includefoot}{geometry}
 }
 \DeclareOption{gutter}{
-  \PassOptionsToPackage{bindingoffset=2.5cm, left=1.5cm, right=1.5cm, top=1.75cm, bottom=1.75cm, includehead, includefoot}{geometry}
+  \PassOptionsToPackage{bindingoffset=2.5cm, left=1.5cm, right=1.5cm, top=1.8cm, bottom=1.8cm, includehead, includefoot}{geometry}
 }
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{book}}
 \ProcessOptions
