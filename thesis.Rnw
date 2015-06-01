@@ -1,5 +1,5 @@
-%\documentclass[hidelinks,nogutter]{glasgowthesis}
-\documentclass[hidelinks,gutter]{glasgowthesis}
+\documentclass[hidelinks,nogutter]{glasgowthesis}
+%\documentclass[hidelinks,gutter]{glasgowthesis}
 \usepackage{emptypage}
 \usepackage{graphics}
 \usepackage{graphicx}
