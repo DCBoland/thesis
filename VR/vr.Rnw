@@ -1,7 +1,7 @@
 \chapter{Engagement with Immersive Media}
 \label{chap:vr}
 
-\lettrine{I}{mmersive} media, where the user's attention and cogntive resources are focused on their media experience, presents an example of where a more nuanced consideration of user engagement is required. The user's \emph{interaction engagement} with the media system may be diminished by their engagement with the media itself. When users are immersed in watching a film, they may be disinclined to use an Electronic Programme Guide. Similarly, a music listener may want to play an album or playlist so they are then free to immerse themselves in the music. A rather extreme example of this tension is the case of Virtual Reality (VR) Head Mounted Displays (HMDs) -- while receiving a great deal of industry investment, the current interaction scenarios greatly impede the user's ability to interact with the system via established modalities such as keyboard, mouse, etc. VR provides a context for considering more generally the competition for the user's attention, with engagement not simply the level of effort from the user, but how they apportion that attention and effort.
+\lettrine{I}{mmersive} media, where the user's attention and cogntive resources are focused on their media experience, present an example of where a more nuanced consideration of user engagement is required. The user's \emph{interaction engagement} with the media system may be diminished by their engagement with the media itself. When users are immersed in watching a film, they may be disinclined to use an Electronic Programme Guide. Similarly, a music listener may want to play an album or playlist so they are then free to immerse themselves in the music. A rather extreme example of this tension is the case of Virtual Reality (VR) Head Mounted Displays (HMDs) -- while receiving a great deal of industry investment, the current interaction scenarios greatly impede the user's ability to interact with the system via established modalities such as keyboard, mouse, etc. VR provides a context for considering more generally the competition for the user's attention, with engagement not simply the level of effort from the user, but how they apportion that attention and effort.
 
 \section{Background}
 
@@ -79,7 +79,7 @@ Typing offers an interesting case for examining the ability to interact with rea
 \begin{figure}[btph]
   \centering
   \includegraphics[width=\textwidth]{"vr-switching"}
-  \caption[View-switching for VR typing study]{Typing Condition 4: VR/Reality switching. The user's view switched between reality and virtuality depending on which they were presently engaging with.}
+  \caption[View-switching for VR typing study]{Typing Condition 4: VR/Reality switching. The user's view switched between reality and virtuality depending on which they were presently engaging with. Note that although the camera view doesn't appear to fill the display, it does fill the field of view.}
 \label{fig:vr-switching}
 \end{figure}
 
@@ -225,7 +225,7 @@ In a survey of VR users, \cite{McGBolMur15} identified that the user's lack of a
  %\vspace{-5pt}
   \centering
   \includegraphics[width=\textwidth]{"blending-vertical"}\\
-  \caption[Blending objects into VR]{Top: \textit{Minimal blending} (reality around user's hands). Middle: \textit{Partial blending} (all interactive objects). Bottom \textit{Full blending} (all of reality)}
+  \caption[Blending objects into VR]{Top: \textit{Minimal blending} (reality around user's hands). Middle: \textit{Partial blending} (all interactive objects). Bottom \textit{Full blending} (all of reality).}
   %\vspace{-10pt}
   \label{fig:vr-blending}
 \end{figure}
@@ -242,6 +242,6 @@ In a survey of VR users, \cite{McGBolMur15} identified that the user's lack of a
 \clearpage
 
 \section{Generalisability}
-At the heart of the work in this chapter is an interaction with an autonomous agent, utilising some inference about user intent conditioned upon their engagement. While a departure from information retrieval, this work demonstrates the applicability of engagement-dependent interaction beyond retrieval interfaces. Whether adaptivity is applied in a recommender system or an interaction with conditional dynamics, a key outcome from this thesis is the proposal of user engagement as a contextual variable for such inferential systems. Interactions will increasingly involve a negotiation with autonomous agents, whether to manage large libraries of content, a VR experience, or even an autonomous vehicle for example. There remains a need to explore the mechanisms by which users can engage or disengage in controlling such interactions, or delegate such control to an agent. This thesis was motivated by the burden of too much control - `too-much-choice', however it will be equally important to avoid the frustration of users being disempowered by too little control.
+At the heart of the work in this chapter is an interaction with an autonomous agent, which utilises inference about user intent, conditioned upon their engagement. While this work is a departure from information retrieval, it demonstrates the applicability of engagement-dependent interaction beyond retrieval interfaces. Whether adaptivity is applied in a recommender system or an interaction with conditional dynamics, a key outcome from this thesis is the proposal of user engagement as a contextual variable for such inferential systems. Interactions will increasingly involve a negotiation with autonomous agents, whether to manage large libraries of content, a VR experience, or even an autonomous vehicle for example. There remains a need to explore the mechanisms by which users can engage or disengage in controlling such interactions, or delegate such control to an agent. This thesis was motivated by the burden of too much control - `too-much-choice', however it will be equally important to avoid the frustration of users being disempowered by too little control.
 
 Considering the concept of engagement-dependent interaction in the context of VR has facilitated the solution of usability issues facing VR HMD users. Users were able to interact with real objects and peripherals from the context of a VR environment, through selective engagement-dependent Augmented Virtuality. This approach enabled interaction with reality, while preserving presence and immersion in VR, by selectively blending relevant parts of reality with virtuality. This was done in an engagement-dependent manner, inferring when and how much to blend reality into virtuality based on the user's engagement with objects in reality. This approach is distinct from past work in VR, seeking to preserve presence and place illusion with a mechanism that minimises the blending of reality.

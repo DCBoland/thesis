@@ -91,7 +91,7 @@ Feb, 2012 & \textbf{Kinect for Windows} - motion sensing device, capable of skel
 Feb, 2013 & \textbf{Microsoft Surface} - tablet device functionality matches laptops, used for development of the engagement-dependent system in \chapref{chap:eng-dep}.\endlr
 Mar, 2013 & \textbf{Oculus Rift DK1} - developer kit of a virtual-reality headset, used for engagement-dependent interactions with virtual media in \chapref{chap:vr}.\endlr
 Mar, 2014 & \textbf{Android Wear} - wearable devices, such as smartwatches and Google Glass, become widely supported, offering compelling use cases for Query by Tapping.\endlr
-Jan, 2015 & \textbf{BeoSound Moment} - Bang \& Olufsen device launched, adopting the engagement-dependent approach and concepts, described in \chapref{chap:industrial}.\endlr
+Jan, 2015 & \textbf{BeoSound Moment} - Bang \& Olufsen device launched, building on the engagement-dependent approach and concept. The product and an exploratory evaluation is described in \chapref{chap:industrial}.\endlr
 Apr, 2015 & \textbf{Thesis Completion}\endlr
 \end{vtimeline}
 \caption[Technological context (timeline)]{Timeline of technological developments that occurred around this work.}
