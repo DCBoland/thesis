@@ -33,6 +33,7 @@ getUserHistory <- function(userid, start="2001-01-01 00:00:00", end="2015-12-31 
 @
 
 \section{Entropy of Listening History}
+\label{sec:listenhistory}
 For each song being played by a user, the value of a given music feature can be taken as a random variable $X$. The entropy $H \! \left(X\right)$ of this variable indicates the uncertainty about the value of that feature over multiple songs in a listening session. This entropy measure gives a scale from a feature's value being the same for every song in the session, through to every level of the feature being equally likely across the songs. The more a user constrains their music selection by a particular feature, e.g.\ mood or album, then the lower the entropy is over those features. The entropy for a feature is defined as:
 %Entropy can give a measure of diversity though need to be careful wrt definition. A user listening to 100 angry songs and 300 happy songs has just as much `diversity' as user with 1000 and 3000 respectively.
 \begin{align}

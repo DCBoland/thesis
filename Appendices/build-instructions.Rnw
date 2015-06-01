@@ -32,3 +32,5 @@ R \citep{R}, knitr \citep{knitr}, dplyr \citep{dplyr}, tidyr \citep{tidyr}, care
 \newpage
 \section{Database schema}
 The SPUD dataset is distributed as a SQLite file. The data is normalised in fifth normal form, with mutually associated \textsc{track}, \textsc{album} and \textsc{artist} tables, as well as correpsonding Spotify IDs for each record. The \textsc{track} table also contains track metadata acquired from Spotify, such as popularity and duration. The Last.fm playlist data is included, as the \textsc{lastfmplaylists} and \textsc{lastfmusers} tables. A cross-reference table, \textsc{lastfmplayliststracks}, is used to associate each playlist with the contained tracks. Some users' listening histories are also provided, using the cross-reference table \textsc{lastfmtracklistens}.
+
+For all of the other studies in this thesis, the required data is included in CSV format in the \emph{data} directory.
