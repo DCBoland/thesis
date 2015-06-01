@@ -1,11 +1,11 @@
 \chapter{Building This Thesis}
 \label{buildinfo}
 
-This thesis is made available as an open source, reproducible document. The data and code used to generate the analyses and graphs within this document are made available for reuse and inspection under the MIT open source license. The data from the studies described in this work is also included, to support these analyses. The code is structured as an example of \emph{literate programming}, interleaving the \LaTeX and R code used in making the arguments of this thesis. 
+This thesis is made available as an open source, reproducible document. The data and code used to generate the analyses and graphs within this document are made available for reuse and inspection under the MIT open source license. The code is structured as an example of \emph{literate programming}, interleaving the \LaTeX \, and R code used in making the arguments of this thesis. Instructions for building this thesis are included in this chapter, as well as a description of the included data. 
 
 \newpage
 
-The commands in listing \ref{lst:build} will download and build this thesis, as well as meeting dependencies such as downloading the SPUD dataset (\chapref{chap:measures}) and building required R packages:
+The commands in listing \ref{lst:build} will download and build this document from source, as well as performing the analyses and meeting dependencies, such as downloading the SPUD dataset (\chapref{chap:measures}) and building required R packages. It is assumed that R and \LaTeX \, environments are installed, as well as the \emph{make}, \emph{wget} and \emph{git} utilities. 
 
 \lstset{basicstyle=\ttfamily,
   showstringspaces=false,
@@ -17,8 +17,18 @@ The commands in listing \ref{lst:build} will download and build this thesis, as 
     # make
 \end{lstlisting}
 
+The resulting document can be relatively large. If \emph{ghostscript} is installed, the command in listing \ref{lst:compress} is included as a convenience function to optimise the document size.
+\begin{lstlisting}[caption={Reducing the document size},label={lst:compress}]
+    # make compress
+\end{lstlisting}
+
+The information-theoretic feature selection in \secref{sec:userfeatures} made use of proprietary music features. This music feature data is not distributed with the thesis. The corresponding figure (\figref{fig:playlists-featuresplot}) is instead distributed as a static image. The code used for the analysis is included, however, with a cache file used to prevent its execution during compilation.
+
 \section{R Environment \& Packages}
-\cite{R}
+This thesis has made use of R and a number of R packages, which are the result of work by a great many people. The code and included comments indicate which packages were used for a given analysis. Many package authors provide details for citations, and their efforts are acknowledged here: 
+
+R \citep{R}, knitr \citep{knitr}, dplyr \citep{dplyr}, tidyr \citep{tidyr}, caret \citep{caret}, RSQLite \citep{rsqlite}, changepoint \citep{changepoint}, ggplot2 \citep{ggplot2}, infotheo \citep{infotheo}, likert \citep{likert}, mvtnorm \citep{GenBre09}, polycor \citep{polycor}, nlme \citep{nlme}, multcomp \citep{HotBreWes08}, survival \citep{TheGra00}.
 
 \newpage
 \section{Database schema}
+The SPUD dataset is distributed as a SQLite file. The data is normalised in fifth normal form, with mutually associated \textsc{track}, \textsc{album} and \textsc{artist} tables, as well as correpsonding Spotify IDs for each record. The \textsc{track} table also contains track metadata acquired from Spotify, such as popularity and duration. The Last.fm playlist data is included, as the \textsc{lastfmplaylists} and \textsc{lastfmusers} tables. A cross-reference table, \textsc{lastfmplayliststracks}, is used to associate each playlist with the contained tracks. Some users' listening histories are also provided, using the cross-reference table \textsc{lastfmtracklistens}.
