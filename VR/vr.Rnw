@@ -1,7 +1,7 @@
 \chapter{Engagement with Immersive Media}
 \label{chap:vr}
 
-\lettrine{I}{mmersive} media, where the user's attention and cogntive resources are focused on their media experience, present an example of where a more nuanced consideration of user engagement is required. The user's \emph{interaction engagement} with the media system may be diminished by their engagement with the media itself. When users are immersed in watching a film, they may be disinclined to use an Electronic Programme Guide. Similarly, a music listener may want to play an album or playlist so they are then free to immerse themselves in the music. A rather extreme example of this tension is the case of Virtual Reality (VR) Head Mounted Displays (HMDs) -- while receiving a great deal of industry investment, the current interaction scenarios greatly impede the user's ability to interact with the system via established modalities such as keyboard, mouse, etc. VR provides a context for considering more generally the competition for the user's attention, with engagement not simply the level of effort from the user, but how they apportion that attention and effort.
+\lettrine{I}{mmersive} media, where the user's attention and cognitive resources are focused on their media experience, present an example of where a more nuanced consideration of user engagement is required. The user's \emph{interaction engagement} with the media system may be diminished by their engagement with the media itself. When users are immersed in watching a film, they may be disinclined to use an Electronic Programme Guide. Similarly, a music listener may want to play an album or playlist so they are then free to immerse themselves in the music. A rather extreme example of this tension is the case of Virtual Reality (VR) Head Mounted Displays (HMDs) -- while receiving a great deal of industry investment, the current interaction scenarios greatly impede the user's ability to interact with the system via established modalities such as keyboard, mouse, etc. VR provides a context for considering more generally the competition for the user's attention, with engagement not simply the level of effort from the user, but how they apportion that attention and effort.
 
 \section{Background}
 
@@ -49,7 +49,7 @@ This chapter aims to show how an engagement-dependent approach to AV supports ri
  \begin{figure}[!b]
   \centering
   \includegraphics[width=\textwidth]{"vr-setup"}\\
-  \caption[Experimental setup for the VR typing study]{Experimental setup for the VR typing study. Users wore a Oculus Rift VR HMD augmented with a camera for mixed reality blendng. Users entered text using a standard desktop QWERTY keyboard. The desk and area in front of the user was made green to allow a chroma-keying approach to the mixed reality blending.}
+  \caption[Experimental setup for the VR typing study]{Experimental setup for the VR typing study. Users wore a Oculus Rift VR HMD augmented with a camera for mixed reality blending. Users entered text using a standard desktop QWERTY keyboard. The desk and area in front of the user was made green to allow a chroma-keying approach to the mixed reality blending.}
   \vspace{-10pt}
   \label{fig:vr-typingsetup}
 \end{figure}
@@ -103,7 +103,7 @@ For selectively blending reality, a chroma-key approach (\figref{fig:vr-typingse
 \vspace{-0.1in}
 
 \subsection{Results}
-The typing statistics can be seen in table \ref{table:vrtyping} and include a repeated-measures ANOVA (GLM) with post hoc pairwise Tukey's tests ($\#-\#$ indicates a significant difference between numbered conditions, $p<0.05$). Performance was highest in the `1 Reality Baseline' condition for most metrics, in keeping with previous work in the literature. The status quo condition of `2 VR No Blending' had significantly higher error rates (corrected and not corrected) and a large drop in typing rate (WPM). The two AV conditions (3 and 4) significantly reduced the error rate in VR typing, nearing the baseline rate of typing in reality. Typing rate however, while improved, failed to reach reality baseline performance. There was no significant difference between partial and full blending in these measures. Figure \ref{fig:vr-typingaccuracy} demonstrates the behaviour participants employed in order to type as quickly and accurately as possible: for condition (2) where users had no view, they quickly made inaccurate keypresses for orientation to the keyboard, whereas the AV conditions (3 and 4) introduced some delay.
+The typing statistics can be seen in table \ref{table:vrtyping} and include a repeated-measures ANOVA (GLM) with post hoc pairwise Tukey's tests ($\#-\#$ indicates a significant difference between numbered conditions, $p<0.05$). Performance was highest in the `1 Reality Baseline' condition for most metrics, in keeping with previous work in the literature. The status quo condition of `2 VR No Blending' had significantly higher error rates (corrected and not corrected) and a large drop in typing rate (WPM). The two AV conditions (3 and 4) significantly reduced the error rate in VR typing, nearing the baseline rate of typing in reality. Typing rate however, while improved, failed to reach reality baseline performance. There was no significant difference between partial and full blending in these measures. Figure \ref{fig:vr-typingaccuracy} demonstrates the behaviour participants employed in order to type as quickly and accurately as possible: for condition (2) where users had no view, they quickly made inaccurate key-presses for orientation to the keyboard, whereas the AV conditions (3 and 4) introduced some delay.
 
 \vspace{-0.1in}
 \subsubsection{Discussion}
@@ -118,7 +118,7 @@ require(dplyr)
 require(tidyr)
 require(xtable)
 require(nlme)
-require(multcomp)
+library(multcomp)
 
 typingmeans <- read.csv('../data/typingmeans.csv',check.names=FALSE) %>%
   mutate(`Duration to First Key (sec)`=`Duration to First Key (sec)`/1000,

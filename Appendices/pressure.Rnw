@@ -4,7 +4,7 @@
 \newpage
 
 \section{Hardware}
-The force applied by the user was measured using an Interlink Electronics Force Sensitive Resistor (FSR)\footnote{\url{https://www.sparkfun.com/datasheets/Sensors/Pressure/fsrguide.pdf}}. The conductance of this sensor is linearly proportional to force within human ranges, as shown in \figref{fig:fsr-rescurve}. As current flow is linear with conductance (and thus the applied force), a transimpedance amplifier or `current-to-voltage convertor' is used to obtain a voltage that represents force (depicted in \figref{fig:transamp}). This approach takes advantage of the linear force--conductance property of the sensor at human input levels, avoiding the issues of a non-linear input modality. This setup resulted in a pressure space of 10N, which was used in developing the prototype system in \chapref{chap:eng-dep}. In this implementation, an mbed\footnote{\url{http://www.mbed.org} (06/12/14)} microcontroller was used to connect the FSR to a Microsoft Surface Pro tablet running Windows 8, which ran the prototype software. The prototype software made use of a low-pass filter to make the pressure input more usable, and the selection of the filter properties is explored in this chapter. This exploration uses the same hardware setup, with an experimental interface configured for a \cite{Fit54} targeting study.
+The force applied by the user was measured using an Interlink Electronics Force Sensitive Resistor (FSR)\footnote{\url{https://www.sparkfun.com/datasheets/Sensors/Pressure/fsrguide.pdf}}. The conductance of this sensor is linearly proportional to force within human ranges, as shown in \figref{fig:fsr-rescurve}. As current flow is linear with conductance (and thus the applied force), a transimpedance amplifier or `current-to-voltage converter' is used to obtain a voltage that represents force (depicted in \figref{fig:transamp}). This approach takes advantage of the linear force--conductance property of the sensor at human input levels, avoiding the issues of a non-linear input modality. This setup resulted in a pressure space of 10N, which was used in developing the prototype system in \chapref{chap:eng-dep}. In this implementation, an mbed\footnote{\url{http://www.mbed.org} (06/12/14)} microcontroller was used to connect the FSR to a Microsoft Surface Pro tablet running Windows 8, which ran the prototype software. The prototype software made use of a low-pass filter to make the pressure input more usable, and the selection of the filter properties is explored in this chapter. This exploration uses the same hardware setup, with an experimental interface configured for a \cite{Fit54} targeting study.
 
 \begin{figure}
 \includegraphics[resolution=300,width=\textwidth]{fsr-rescurve}
@@ -17,7 +17,7 @@ The force applied by the user was measured using an Interlink Electronics Force 
 \begin{figure}
 \center
 \includegraphics[resolution=300,width=0.8\textwidth]{transamp}
-\caption[Transimpedance amplifier for pressure sensor]{The transimpedance amplifier or `current to voltage' convertor produces a voltage output that is linear with the current input. The conductance (and thus current) of the FSR is approximately linear with force across the range of human input, yielding a linear force--voltage relationship. Figure taken from the Interlink FSR integration guide.\footnotemark[1]}
+\caption[Transimpedance amplifier for pressure sensor]{The transimpedance amplifier or `current to voltage' converter produces a voltage output that is linear with the current input. The conductance (and thus current) of the FSR is approximately linear with force across the range of human input, yielding a linear force--voltage relationship. Figure taken from the Interlink FSR integration guide.\footnotemark[1]}
 \label{fig:transamp}
 \end{figure}
 
@@ -94,7 +94,7 @@ A \cite{Fit54} targeting study was conducted to identify an appropriate filter t
 \text{MT} &= a + b \, \text{ID},\\
 \intertext{MT is linear with the \emph{index of difficulty} (ID), which is a function of target distance and width. Throughput (TP) is given in ISO 9241-9 using the slope-inverse method:}
 \text{TP} &= \frac{\text{ID}_e}{\text{MT}},\\
-\intertext{making the assumption of a zero intercept, i.e.\ $a = 0$. $\text{ID}_e$ reflects the \emph{empirical index of difficulty}, with target width having been adjusted to fit the error distribution observed. The zero intercept assumption is unncessary however, by applying linear regression with $\text{TP} = \frac{1}{b}$ (see \cite{Zha04} for a discussion on throughput calculation).}
+\intertext{making the assumption of a zero intercept, i.e.\ $a = 0$. $\text{ID}_e$ reflects the \emph{empirical index of difficulty}, with target width having been adjusted to fit the error distribution observed. The zero intercept assumption is unnecessary however, by applying linear regression with $\text{TP} = \frac{1}{b}$ (see \cite{Zha04} for a discussion on throughput calculation).}
 \end{align*}
 
 \vspace{-0.8in}
