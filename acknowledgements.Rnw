@@ -43,5 +43,8 @@ In \chapref{chap:eng-dep} and \chapref{chap:industrial}, Ross McLachlan and I jo
 In \chapref{chap:vr}, I contributed an engagement-dependent approach to blending Virtual Reality and some computer vision filters for use with a video pass-through head mounted display. Mark McGill implemented the study conditions in the Virtual Reality environment and conducted the study. Subsequent analyses were performed independently.
 
 In appendix \ref{chap:pressuresensing}, I implemented a pressure sensor and low-pass filter, the dynamics of which were optimised to maximise throughput in a Fitts' task. The experimental protocol was jointly designed with Ross McLachlan, who used his existing software to conduct the study. Subsequent analyses were performed independently.
+
+\begin{center}{\bf Commercial Sensitivity}\end{center}
+Some of the work described in this thesis occurred as part of collaborations with industry partners. Details of a commercially sensitive nature have been omitted, i.e., the details of the feature extraction for the playlist analysis in \secref{sec:userfeatures} and the commercial context of the survival analysis in \secref{sec:survival}.
 \vspace*{\fill}
 %\setlength{\leftskip}{0cm}

@@ -1,5 +1,5 @@
 \section{Survival Analysis of a Music Startup}
-
+\label{sec:survival}
 <<survival-setup>>=
 require(dplyr)
 require(tidyr)
