@@ -1,6 +1,6 @@
 \chapter{Combined Music Engagement Questionnaire}
 \label{app:questionnaire}
-\lettrine{T}{he} following music engagement and use questionnaire is based on similar questionnaires in \cite{GreLam11, KraNorHew14}. These previous questionnaires were combined, and the wording of some questions updated to reflect digital music listening. This questionnaire begins with two questions from \citeauthor{KraNorHew14}'s questionnaire, asking participants to tick any selection methods and devices that they use when listening to music. The remaining questions are adapted from \citeauthor{GreLam11}'s questionnaire and prompt participants to respond using a five point Likert scale. 
+\lettrine{T}{he} following music engagement and use questionnaire is based on similar questionnaires in \cite{GreLam11, KraNorHew14}. These previous questionnaires were combined, and the wording of some questions updated to reflect digital music listening. This questionnaire begins with two questions from \citeauthor{KraNorHew14}'s questionnaire, asking participants to tick any selection methods and devices that they use when listening to music. The remaining questions are adapted from \citeauthor{GreLam11}'s questionnaire and prompt participants to respond using a five point Likert scale.\footnote{Original form as given to users: \url{https://goo.gl/TTfXeM}}
 \clearpage
 
 \subsection{Questionnaire}
