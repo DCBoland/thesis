@@ -111,8 +111,9 @@ getNoControl <- function(history, minPause=2, maxPause=120, skipThresh=0){
 getSkipLambda <- function(history, skipThresh=0){
   diffs <- history$playinterval[1:(length(history$playinterval)-1)]
   durations <- history$t.duration[1:(length(history$t.duration)-1)]
-  skips <- diffs[diffs < skipThresh]
   l <- durations[diffs < skipThresh]
+
+  skips <- diffs[diffs < skipThresh]
   return(mean(l/-skips))
 }
 
@@ -130,6 +131,7 @@ getAlbumBased <- function(history, thresh){
 @
 
 <<questionnaire-analysis>>=
+require(psych)
 resp <- readResponses('../data/questionnaireResponses.csv')
 userlist <- lapply(resp$Username,getUserid)
 
@@ -157,6 +159,22 @@ features <- cbind(interventions=unlist(lapply(histories, getInterventions, minPa
 )
 c <- data.frame(Username=usernames,features)
 c <- merge(c,resp,by="Username")
+
+
+
+#test <- data.frame(Control=c$Control,Churn=c$churn,Album=c$album,Interventions=c$interventions,"Skip lambda"=c$skipLambda,"Selection lambda"=c$selectionLambda)
+test <- data.frame(Control=c$Control,Album=c$album,Interventions=c$interventions,"Skip speed"=c$skipLambda,"Selection speed"=c$selectionLambda)
+#fix colnames
+colnames(test)[4:5] <- c("Skip Speed","Selection Speed")
+
+results <- hetcor(test, ML=TRUE, std.err=TRUE)
+zscores <- abs(results$correlations / results$std.errors)
+
+results_cron <- alpha(results$correlations,check.keys=TRUE)$total[1,1]
+#sig <- zscores > 1.96
+#vsig <- zscores > 2.58
+pvalues <- prettyPrint(2*pnorm(-abs(zscores)))
+#print(results$correlations["c$Control","c.interventions"])
 @
 
 \section{Measuring Music Engagement}
@@ -202,23 +220,9 @@ plot(t, centered=FALSE) + theme(text=element_text(size=12, family="Helvetica"))
 
 \subsection{Results}
 
-<<questionnaire-table, cache=FALSE, results="asis">>==
+<<questionnaire-table, results="asis">>==
 require(xtable)
 require(psych)
-
-#test <- data.frame(Control=c$Control,Churn=c$churn,Album=c$album,Interventions=c$interventions,"Skip lambda"=c$skipLambda,"Selection lambda"=c$selectionLambda)
-test <- data.frame(Control=c$Control,Album=c$album,Interventions=c$interventions,"Skip speed"=c$skipLambda,"Selection speed"=c$selectionLambda)
-#fix colnames
-colnames(test)[4:5] <- c("Skip Speed","Selection Speed")
-
-results <- hetcor(test, ML=TRUE, std.err=TRUE)
-zscores <- abs(results$correlations / results$std.errors)
-
-results_cron <- alpha(results$correlations,check.keys=TRUE)$total[1,1]
-#sig <- zscores > 1.96
-#vsig <- zscores > 2.58
-pvalues <- prettyPrint(2*pnorm(-abs(zscores)))
-#print(results$correlations["c$Control","c.interventions"])
 
 cortab <- corrtable(results$correlation,pvalues)
 #Discard blank row
@@ -230,7 +234,7 @@ print(x, table.placement="!b", sanitize.text.function = function(x) x,
          add.to.row = list(pos=list(-1,0,nrow(x)), command=c('\\toprule \n','\\midrule \n','\\bottomrule \n')))
 @
 
-As the questionnaire responses are ordinal (Likert scale) and the other measures are interval, polyserial correlation was used to estimate the relationship between underlying continuous distributions from which the results were sampled. The number of tracks selected due to user \textit{Intervention} (skipping or pausing) in music selection was significantly inversely correlated with their self-reported \textit{Control} ($\rho = \Sexpr{prettyPrint(results$correlations["Control","Interventions"])}$, $p = \Sexpr{pvalues["Control","Interventions"]}$). Users' use of \textit{Album} based music-listening was also significantly correlated with self-reported \textit{Control} ($\rho = \Sexpr{prettyPrint(results$correlations["Control","Album"])}$, $p = \Sexpr{pvalues["Control","Album"]}$). The album-listening detection metric was confirmed using the questionnaire responses, with an independent-samples t-test between users who had or had not listed album-based selection, with significant differences in \textit{Album}, \textit{Skip speed} ($p < .01$), and \textit{Interventions} ($p < .05$). The internal reliability of the measures in table \ref{table:controlcorr} was high, with Cronbach's $\alpha = \Sexpr{prettyPrint(results_cron)}$.
+As the questionnaire responses are ordinal and the other measures are interval, polyserial correlation \citep{polycor} was used to estimate the relationship between underlying continuous distributions from which the results were sampled. The number of tracks selected due to user \textit{Intervention} (skipping or pausing) in music selection was significantly inversely correlated with their self-reported \textit{Control} ($\rho = \Sexpr{prettyPrint(results$correlations["Control","Interventions"])}$, $p = \Sexpr{pvalues["Control","Interventions"]}$). Users' use of \textit{Album} based music-listening was also significantly correlated with self-reported \textit{Control} ($\rho = \Sexpr{prettyPrint(results$correlations["Control","Album"])}$, $p = \Sexpr{pvalues["Control","Album"]}$). The album-listening detection metric was confirmed using the questionnaire responses, with an independent-samples t-test between users who had or had not listed album-based selection, with significant differences in \textit{Album}, \textit{Skip speed} ($p < .01$), and \textit{Interventions} ($p < .05$). The internal reliability of the measures in table \ref{table:controlcorr} was high, with Cronbach's $\alpha = \Sexpr{prettyPrint(results_cron)}$.
 
 %These results at first appear counter-intuitive, with users saying they prefer more control and yet intervening less in the music playack and retrieval. One explanation for this could be that the detected interventions are corrective, with users being more likely to skip or pause to find a new track if they had less control over the initial music selection. The correlation between \textit{Control} and \textit{Album}-based listening suggests that more engaged listeners are more likely to have invested effort in making a controlling selection at the start of their music retrieval e.g.\ having crafted a playlist or selected an appropriate album. This result makes clear the importance of the distinction between \emph{control} and \emph{focus}, as discussed in \secref{sec:musicengagement}.
 
