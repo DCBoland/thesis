@@ -1,5 +1,5 @@
-%\documentclass[hidelinks,nogutter]{glasgowthesis}
-\documentclass[hidelinks,gutter]{glasgowthesis}
+\documentclass[hidelinks,nogutter]{glasgowthesis}
+%\documentclass[hidelinks,gutter]{glasgowthesis}
 \usepackage{emptypage}
 \usepackage{graphics}
 \usepackage{graphicx}
@@ -137,6 +137,9 @@ prettyProb <- function(x) {
 \part{Understanding Music Listening}
 \label{part:understanding}
 <<child-measures, child="Understanding//measures.Rnw">>=
+@
+
+<<child-questionnaire, child='Understanding//questionnaire.Rnw'>>=
 @
 
 <<child-infotheo, child="Understanding//infotheo.Rnw">>=
