@@ -59,7 +59,7 @@ The assumed value for $c_{manual}$ is conservative to ensure that the measured p
 User intervention in music listening can be considered as a Bernoulli process, i.e.\ a binary choice between whether a user selected each song or the selection was part of automatic playback. The examples in this work consider users across all their listening sessions, with the assumption that interventions are part of a homogeneous process (with fixed probability). In practice, user behaviour will inevitably change with their listening context, however these assumptions still allow for a user's overall behaviour to be modelled. Users can thus be characterised in terms of their \textit{Intervention Rate} -- the rate at which they intervene with a \textit{Skipping} or \textit{Switching} event. 
 
 \subsection{Speed}
-While the occurrence of an intervention may provide some information about music-listening behaviour, it was hypothesised that the speed at which users intervene may add further detail. To explore this, two measures were proposed: \textit{Switching speed} -- how quickly a user switches to a new track after a previous track ends, and \textit{Skip speed} -- how far, proportionally, into a song does a user decide to skip track. The harmonic mean of time is used to mitigate the effect of large outliers where a track nearly completed. As speed was the measure of interest, the reciprocal is taken, yielding a simple equation. Considering only the $j$ songs where a \textit{Skipping} event has been detected:
+While the occurrence of an intervention may provide some information about music-listening behaviour, it was hypothesised that the speed at which users intervene may add further detail. To explore this, two measures were proposed: \textit{Switching speed} -- how quickly a user switches to a new track after a previous track ends, and \textit{Skip speed} -- how far, proportionally, into a song does a user decide to skip track. The decision to normalise against the duration of the song is based on the assumption that a longer song will have a longer introductory segment, with the user needing to listen longer before deciding to skip. Considering only the $j$ songs where a \textit{Skipping} event has been detected:
 \begin{align*}
 Skip\ speed &= \frac{1}{j-1} \sum\limits_{s=1}^{j-1} \frac{d_s}{\Delta d_s}.
 \intertext{\textit{Switch speed} can be calculated in a similar manner. Considering only the $k$ songs where a \textit{Switching} event has been detected:}
@@ -67,11 +67,15 @@ Switch\ speed &= \frac{1}{k-1} \sum\limits_{s=1}^{k-1} \frac{1}{\Delta d_s}.
 \end{align*}
 
 \subsubsection{On the use of the harmonic mean}
-When considering a rate, such as speed, one would typically use the harmonic rather than arithmetic mean. The harmonic mean of speed $\bar{S}_H$ is the reciprocal of the arithmetic mean of time. The measure of interest however is not the average speed as taken across all of the interaction time (as captured by $\bar{S}_H$) but is the expectation of the speed taken in a given selection. The arithmetic mean of selection speeds is desirable then:
+Sometimes listeners skip near the end of a song's playback, especially where a song is fading out. The time taken to skip would be large in these instances and would bias the arithmetic mean of time taken. For this reason, the harmonic mean of skip time taken is calculated instead, mitigating the effect of large outliers:
 \begin{align*}
-\bar{S} &=\frac{1}{n} \sum\limits_{s=1}^n \frac{1}{\Delta d_s}.\\
-\intertext{It is notable that the reciprocal of this speed $\bar{S}$ is the harmonic mean of $\Delta d_s$:}
-\frac{1}{\bar{S}} &= \frac{n}{\sum\limits_{s=1}^n \frac{1}{\Delta d_s}}.
+Skip\ time &= \frac{j-1}{\sum\limits_{s=1}^{j-1} \frac{d_s}{\Delta d_s}}.\\
+\intertext{It is simpler to consider this in terms of speed by taking the reciprocal of the above. The equation then simplifies to being the arithmetic mean of speed: }
+Skip\ speed &=\frac{1}{j-1} \sum\limits_{s=1}^{j-1} \frac{d_s}{\Delta d_s}.
 \end{align*}
+Note that when considering a rate, such as speed, one would typically use the harmonic of speed rather than arithmetic mean. The measure of interest however is not the average speed across all of the interaction time but is the expectation of the speed of a given selection.
+%The harmonic mean of speed $\bar{S}_H$ is the reciprocal of the arithmetic mean of time. The measure of interest however is not the average speed as taken across all of the interaction time (as captured by $\bar{S}_H$) but is the expectation of the speed taken in a given selection. The arithmetic mean of selection speeds is desirable then:
+
+
 Unlike the arithmetic mean of time, the harmonic mean of $\Delta d_s$ is robust against slow outliers where a large time was taken (e.g. skipping as a song is nearly complete). 
 %\newpage
