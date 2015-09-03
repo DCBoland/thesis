@@ -47,7 +47,7 @@ As an initial sanity check, the queries produced by multiple participants for th
 \begin{figure*}[t!]
 \centering
 \includegraphics[width=\textwidth]{onsets}%TODO: Fix image size
-\caption[Example of user sampling from instruments to produce a query]{Users construct queries by sampling from preferred instruments. User 1 prefers Vocals and Guitar whereas User 2 prefers Drums and Vocals.}
+\caption[Example of user sampling from instruments to produce a query]{An illustration of how users construct queries by sampling from preferred instruments. User 1 prefers Vocals and Guitar whereas User 2 prefers Drums and Vocals.}
 \label{fig:onsets}
 \end{figure*}
 
@@ -108,7 +108,8 @@ ggplot(tapdiff, aes(x=diff)) + #geom_histogram(aes(y=..density..), binwidth=1, f
 @
 
 \subsection{Interpreting Rhythmic Queries}
-As discussed in \secref{sec:musicuniversals}, listeners perceive and reproduce rhythm in relative categories of intervals between notes (\emph{IOIs}). These intervals are constructed as multiples of some reference, lowest common denominator beat termed the \emph{tatum}. Complex rhythms are thus distorted into distinct categories of \emph{IOIs}, each defined relative to each other. The tatum for the query must be established in order to then interpret the rhythmic pattern (as distinct from the absolute position of taps in the time domain). The tatum is estimated in this work by taking the autocorrelation of the histogram of \emph{IOI} categories, giving the reference unit in which they can be defined. One must take this approach of defining rhythmic events relative to each other as users cannot accurately reproduce the absolute timing of music. Taking only the relative timings would discard some information however, such as the tempo the query was produced at. To avoid this, the tatum itself can be used as an additional feature for weighting the retrieval. 
+\label{subsec:rhythmicqueries}
+As discussed in \secref{sec:musicuniversals}, listeners perceive and reproduce rhythm in relative categories of intervals between notes (\emph{IOIs}). These intervals are constructed as multiples of some reference, greatest common divisor beat termed the \emph{tatum} \citep{Sep01}. Complex rhythms are thus distorted into distinct categories of \emph{IOIs}, each defined relative to each other. The tatum for the query must be established in order to then interpret the rhythmic pattern (as distinct from the absolute position of taps in the time domain). The tatum is estimated in this work by taking the autocorrelation of the histogram of \emph{IOI} categories, giving the reference unit in which they can be defined. One must take this approach of defining rhythmic events relative to each other as users cannot accurately reproduce the absolute timing of music. Taking only the relative timings would discard some information however, such as the tempo the query was produced at. To avoid this, the tatum itself can be used as an additional feature for weighting the retrieval. 
 
 For controlled non-musical rhythms, \cite{GhoFauHuo12} used k-means clustering to identify long and short interval clusters. As it is expected that users will generate \emph{IOIs} by sampling from distributions around an unknown number of \emph{IOI} categories, an alternative approach of modelling the categories is to fit a Gaussian Mixture Model selected using the Bayes Information Criterion. An example of the clustering is described in figure \ref{fig:clusteredtaps}.
 
@@ -239,7 +240,7 @@ Rhythmic queries for a given song can vary greatly between subjects though are t
 \subsection{Instrument Affinity}
 Polyphonic music will have a sequence of notes for each instrument and thus a sequence of \emph{IOIs} for each instrument. As observed in the initial study, users typically switch between instruments as they feature in the music. This switching behaviour follows the user's preference of instruments to tap to. This set of preferences for instruments is termed here as the affinity vector $A\!_{f\!f}$, which ranks the available instruments in terms of the user's affinity. The generative model uses  $A\!_{f\!f}$ to switch to a preferred instrument's \emph{IOI} sequence as those instruments feature. The behaviour of this model can be considered as a finite state transducer with a state for each instrument, sampling from the instrument sequence corresponding to the current state, as in figure \ref{fig:genModel}. 
 
-Users are able anticipate upcoming musical notes and will not perform the switch to another instrument state if their preferred instrument sequence will shortly resume. This look-ahead behaviour is also implemented in the generative model. The model samples notes up to $500mS$ in advance and stores them in a look-ahead buffer; only when the buffer is empty does the state change to the next available in the affinity vector. Whenever a note event occurs for an instrument with a greater affinity, the model immediately changes state. For ease of calculation, the model is treated deterministically and a database of reference rhythmic sequences is produced across the music collection. A probabilistic approach to switching may better model user behaviour but would add a great deal of complexity.
+Users are able to anticipate upcoming musical notes and will not perform the switch to another instrument state if their preferred instrument sequence will shortly resume. This look-ahead behaviour is also implemented in the generative model. The model samples notes up to $500mS$ in advance and stores them in a look-ahead buffer; only when the buffer is empty does the state change to the next available in the affinity vector. Whenever a note event occurs for an instrument with a greater affinity, the model immediately changes state. For ease of calculation, the model is treated deterministically and a database of reference rhythmic sequences is produced across the music collection. A probabilistic approach to switching may better model user behaviour but would add a great deal of complexity.
 
 \subsection{Referent Period}
 As music is highly structured, rhythm can be thought of as a hierarchy, where a note on one level could be split into multiple notes on a lower level. Individuals have a `referent period', i.e.\ a rate at which information processing is natural to them and they are likely to synchronize at a level in the hierarchy of musical rhythm that is closest to their referent period. It has been shown that musical training and acculturation result in higher referent levels \citep{DraElH03}, and so it is likely that rhythmic queries will be produced from a variety of levels in the rhythmic hierarchy, depending on the issuing user. This adds an extra degree of complexity to the generative model, in that the generated queries must match the referent period with which the user produces queries. 
@@ -247,6 +248,31 @@ As music is highly structured, rhythm can be thought of as a hierarchy, where a 
 In order to model the differing referent periods of users, a music corpus must contain onset data for several levels of rhythmic complexity. The appropriate level can then be selected as part of training the generative model. Such training enables the acquisition of a prior over possible referent periods for the user -- it may be the case that the user's referent period varies between songs.
 
 \section{Model Implementation}
+A model was implemented to recreate users' onsets sampling strategy, as discovered in the initial study and depicted in \figref{fig:onsets}. The implementation of this sampling strategy is detailed as pseudocode in algorithm \ref{alg:tapping} and also shown graphically in \figref{fig:genModel}. While this model is able to generate canonical query sequences for a given instrument affinity $A_{ff}$, the queries produced by users will likely be much more varied. The string matching described in subsection \ref{subsec:rhythmicqueries} is used to calculate the distance of a query from the canonical queries produced by this model. These distance values are then used to approximate the probability of a given query being produced for a set of model parameters.
+
+\begin{algorithm}[H]
+ \KwData{\\
+Voices - An array containing streams of note onset times for each voice in a piece of polyphonic music. \\
+$A_{ff}$ - A sorted array of voice indices, indicating the user's ranked affinity for entraining with each voice.\\}\vspace{0.1in}
+
+ \KwResult{A stream of note onsets for this song, as would be tapped by a user.\\}\vspace{0.1in}
+ 
+ t=0\;
+ state=None\;
+ Order Voices by $A_{ff}$ indices\;
+ \While{more note onsets to sample in Voices}{
+  \For{v $\in$ Voices}{
+  \uIf{note available in v within 200ms of t}{sample next note\; set state to v\; break\;}
+  \uElseIf{state $=$ v and note available in v within 500ms of t}{\tcc{Note soon, so don't check other voices} break\;}
+ }
+ \uIf{note sampled}{output note\;} 
+ increment t\;
+ }
+ \vspace{0.1in}
+ \caption{Sampling from multiple polyphonic voices according to Affinity vector (user's preference for entraining with different instruments).}
+ \label{alg:tapping}
+\end{algorithm}
+
 \newpage
 
 \section{Inferring User Intent}
