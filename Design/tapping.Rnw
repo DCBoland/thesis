@@ -25,6 +25,7 @@ The potential of rhythmic interaction has been recognised in Human Computer Inte
 A number of key techniques for \emph{QbT} are introduced in \cite{HanRob09}, which describes rhythm as a sequence of time intervals between notes -- termed \emph{inter-onset intervals (IOIs)}. They identify the need for such intervals to be defined relative to each other to avoid the user having to exactly recreate the music's tempo. In previous implementations of \emph{QbT}, each \emph{IOI} is defined relative to the preceding one \citep{HanRob09}. This sequential dependency compounds user errors in reproducing a rhythm, as an erroneous \emph{IOI} value will also distort the subsequent one. The approach to rhythmic interaction in \cite{GhoFauHuo12} however used k-means clustering to classify taps and \emph{IOIs} into three classes based on duration. Their clustering based approach avoids the sequential error however loses a great deal of detail in the rhythmic query. Applying a clustering approach to musical queries would need a greater number of clusters to be identified.
 
 \subsection{Onset Detection}
+\label{sec:onset}
 In order to compare user queries against a music library, one must compute the intervals (\emph{IOIs}) between the rhythmic events within the music. Onset detection is the task of finding such events and has been studied at length within the field of Music Information Retrieval. An evaluation of onset detection algorithms in \cite{BoeKreSch12} showed the most precise onset detection method reviewed was their variant of the `spectral flux' technique introduced by \cite{Mas96}, which measures how quickly the power spectrum of a signal is changing. They also discuss the benefits of adaptive whitening introduced in \cite{StoPlu07} which adaptively normalises frequency bands' magnitudes to improve onset detection in music with highly varying dynamics, such as the rock music used in this work. 
 
 These off-the-shelf onset detection techniques are applied to the audio of the tracks users could query, and update the existing work on \emph{QbT} to a state-of-the-art implementation. The onsets acquired from audio are used as a baseline, along with professionally annoted music onsets. The \emph{QbT} techniques developed in this chapter are applied to both the audio-derived and annotated onsets, and the evaluations are conducted using both. Though the comparison with the audio-derived onsets provides a context within which to view the potential results shown using annotated onsets, it is the comparison between the results using the annotated onsets that provide an insight into the developments in this chapter.
@@ -248,12 +249,10 @@ As music is highly structured, rhythm can be thought of as a hierarchy, where a 
 In order to model the differing referent periods of users, a music corpus must contain onset data for several levels of rhythmic complexity. The appropriate level can then be selected as part of training the generative model. Such training enables the acquisition of a prior over possible referent periods for the user -- it may be the case that the user's referent period varies between songs.
 
 \section{Model Implementation}
-A model was implemented to recreate users' onsets sampling strategy, as discovered in the initial study and depicted in \figref{fig:onsets}. The implementation of this sampling strategy is detailed as pseudocode in algorithm \ref{alg:tapping} and also shown graphically in \figref{fig:genModel}. While this model is able to generate canonical query sequences for a given instrument affinity $A_{ff}$, the queries produced by users will likely be much more varied. The string matching described in subsection \ref{subsec:rhythmicqueries} is used to calculate the distance of a query from the canonical queries produced by this model. These distance values are then used to approximate the probability of a given query being produced for a set of model parameters.
+A model was implemented to recreate users' onsets sampling strategy, as discovered in the initial study and depicted in \figref{fig:onsets}. The implementation of this sampling strategy is detailed as pseudocode in algorithm \ref{alg:tapping} and also shown graphically in \figref{fig:genModel}. While this model is able to generate canonical query sequences for a given instrument affinity $A_{ff}$, the queries produced by users will likely be much more varied. The string matching described in subsection \ref{subsec:rhythmicqueries} is used to calculate the distance of a query from the canonical queries produced by this model. These distance values are then used to approximate the probability of a given query being produced for a set of model parameters (forming the likelihood function in \secref{sec:infer}). The user model parameters are also estimated using the string matching distances, \secref{sec:infer} describes the use of of training queries matched to the canonical queries to infer a distribution over the possible parameters.
 
 \begin{algorithm}[H]
- \KwData{\\
-Voices - An array containing streams of note onset times for each voice in a piece of polyphonic music. \\
-$A_{ff}$ - A sorted array of voice indices, indicating the user's ranked affinity for entraining with each voice.\\}\vspace{0.1in}
+ \KwData{Voices - An array containing streams of note onset times for each voice in a piece of polyphonic music. $A_{ff}$ - A sorted array of voice indices, indicating the user's ranked affinity for entraining with each voice.\\}\vspace{0.1in}
 
  \KwResult{A stream of note onsets for this song, as would be tapped by a user.\\}\vspace{0.1in}
  
@@ -276,6 +275,7 @@ $A_{ff}$ - A sorted array of voice indices, indicating the user's ranked affinit
 \newpage
 
 \section{Inferring User Intent}
+\label{sec:infer}
 The task of ranking songs based on some rhythmic evidence can be seen as an inference task and not only as a traditional retrieval task. Previous work in information retrieval has introduced the use of query models to encode knowledge about how a user produces a query \citep{LafZha01}. The approach here is similar in the use of a query likelihood model. When producing a rhythmic query, the user uses their internal query model $\vec M_u$. They then produce a query using this model, which is matched against the music corpus. The problem can thus be expressed using Bayes' theorem:
 
 \begin{equation*}
@@ -290,16 +290,20 @@ In this work the prior $p\left(\vec M_u \! \mid \! d_t\right)$ is non-informativ
 In order to infer a belief about whether a user is interested in a given song, one must compute the likelihood $p\left(q \! \mid \! d_j, \vec M_u\right)$ of their query conditioned upon that song being of interest and that user's query model. The string matching function is used to compare user queries with those in the database and to assign beliefs to songs accordingly. The more edits that are required to match the query to the stored song sequence, the lower the estimated likelihood of that query for that song.
 
 \section{Evaluation}
-A within-subjects experiment was conducted to compare the performance of the query likelihood model described before and after training, as well as against a baseline approach using the onset detection techniques described previously. These conditions are termed: \emph{Baseline} (onset detection), \emph{Untrained GM} (polyphonic data with generative model) and \emph{Trained GM} (polyphonic data with trained generative model). Given the parameters of the generative model, the target space against which queries are matched is greater than in the baseline case. For the baseline, there is one possible sequence for each of the $300$ songs. The model has four instrument sequences for each song, sampled using the generative model with $96$ possible parameter permutations, yielding a target song space of $28,800$ sequences.
+A within-subjects experiment was conducted to compare the performance of the query likelihood model described before and after training, as well as against a baseline approach using the onset detection techniques. The baseline approach used the onset detection techniques described in \secref{sec:onset} and reviewed by \cite{BoeKreSch12}. These conditions are termed: \emph{Baseline} (onset detection), \emph{Untrained GM} (polyphonic data with generative model) and \emph{Trained GM} (polyphonic data with trained generative model). 
+
+Given the parameters of the generative model, the target space against which queries are matched is greater than in the baseline case. For the baseline, there is one possible sequence for each of the $300$ songs. The model has four instrument sequences for each song, sampled using the generative model with $96$ possible parameter permutations, yielding a target song space of $28,800$ sequences.
 
 \subsection{Experimental Setup}
 A corpus of MIDI and MP3 music data was acquired from popular rhythm games, featuring professionally annotated note onset times (from which \emph{IOIs} are computed) for each instrument in 300 rock and pop songs. While the size of this corpus was limited by the source of the data, it reflected real-world usage at the time -- \cite{KarRen13} gives it as the median music file collection size in Germany. Participants selected at least two songs from the corpus and listened to them to ensure familiarity. They were then asked to produce at least three rhythmic queries for each song by tapping a section of the song's rhythm on the touchscreen of a Nokia N9 mobile phone. No feedback was provided to the participant after each query. The queries were used to train the generative model using leave-one-out cross-validation. Participants were provided with headphones to control background noise.
 
-Quantitative data was captured in the form of rank results, with songs ranked according to the inferred belief. Qualitative data was captured during a discussion with participants where they were asked to comment on the style of interaction presented and whether they found it enjoyable and/or useful. Eight unpaid British participants volunteered, four female, four male, ages 18 -- 72 (mean: 30). Half of the participants were university students and one a retiree. Participants were instructed to ``tap the rhythm of the song on the touchscreen, in order to select that piece of music.'' No limit was made on the length of the queries. The participants were not musicians, otherwise musical background was not controlled.
+Quantitative data was captured in the form of rank results, with songs ranked according to the inferred belief. Qualitative data was captured during a discussion with participants where they were asked to comment on the style of interaction presented and whether they found it enjoyable and/or useful. Eight unpaid British participants volunteered, four female, four male, ages 18 -- 72 (mean: 30). Half of the participants were university students and one a retiree. Participants were instructed to ``tap the rhythm of the song on the touchscreen, in order to select that piece of music.'' No limit was made on the length of the queries. The participants were not musicians, otherwise musical background was not controlled. Rhythmic queries were captured using a Nokia N9, running the logging software and variant of the Smith-Waterman algorithm, both developed in C++ using the Qt framework.\newpage
 
-Rhythmic queries were captured using a Nokia N9, running the logging software and variant of the Smith-Waterman algorithm, both developed in C++ using the Qt framework. Bayesian parameter estimation with a non-informative prior was used in the training, rather than selecting the parameters using the Maximum Likelihood Estimate, retaining some uncertainty to mitigate overfitting. The goal was for the target song to always be in the on-screen (top 20) rankings, rather than optimising for the highest rankings.
+Maximum a posteriori (MAP) parameter estimation with a non-informative prior was used in the training, rather than selecting the parameters using the Maximum Likelihood Estimate, retaining some uncertainty so as to mitigate overfitting. The goal was for the target song to always be in the on-screen (top 20) rankings, rather than optimising for the highest rankings.
 
 \subsection{Results}
+One measure of interest is how rapidly a user can filter their music collection to recall the desired result on screen (i.e.\ into the top 20 ranked songs or 6.7\% of the collection). Figure \ref{fig:tapping-recall} shows the percentage of queries which resulted in such a ranking, with query performance improving with query duration in seconds. Higher rankings are achieved for all query lengths when using the trained generative model. Queries with lengths of approaching 10 seconds always yielded an on-screen result (in the top 6.7\% of the corpus). Up to this point the recognition rate improves with query length, as the additional information is incorporated. It is noteworthy that queries over 10 seconds lead to a rapid fall-off in performance.
+
 <<tapping-length>>=
 library(dplyr)
 mono <- read.csv("../data/tapTrials/monotimeResults.csv") %>%
@@ -320,7 +324,7 @@ tapLengthResults <- rbind(mono,trained) %>%
   filter(samples > 3 & Time > 0)
 @
 
-<<tapping-recall, eval=TRUE, dev='png', fig.height=5, fig.width=7, fig.cap="Recall rate i.e.\\ percentage of queries yielding a highly ranked result (in the top 20) plotted against query length in seconds. Retrieval performance is shown with the generative model using annotated polyphonic onsets, with monophonic onset detection baseline for context. Performance improves with query duration however falls off rapidly with lengthy queries.", fig.scap="Rhythmic retrieval performance (recall)">>=
+<<tapping-recall, eval=TRUE, dev='png', fig.height=5, fig.width=7, fig.pos="!b", fig.cap="Recall rate i.e.\\ percentage of queries yielding a highly ranked result (in the top 20) plotted against query length in seconds. Retrieval performance is shown with the generative model using annotated polyphonic onsets, with monophonic onset detection baseline for context. Performance improves with query duration however falls off rapidly with length.", fig.scap="Rhythmic retrieval performance (recall)">>=
 ggplot(tapLengthResults, aes(x=Time, y=recall, group=Condition, colour=Condition, shape=Condition)) + 
   geom_point(alpha=0.6) + geom_smooth(se=FALSE) +  
   xlab("Query length in seconds (log)") + ylab("Recall rate (%, thresh = 20)") + 
@@ -328,13 +332,11 @@ ggplot(tapLengthResults, aes(x=Time, y=recall, group=Condition, colour=Condition
   scale_x_log10(breaks=c(0.5,1,2,5,10,20,30)) + coord_cartesian(xlim=c(0.47,32))
 @
 
-One measure of interest is how rapidly a user can filter their music collection to recall the desired result on screen (i.e.\ into the top 20 ranked songs or 6.7\% of the collection). Figure \ref{fig:tapping-recall} shows the percentage of queries which resulted in such a ranking, with query performance improving with query duration in seconds. Another useful measure is Mean Reciprocal Rank shown in figure \ref{fig:tapping-MRR}, reflecting more directly the position of the song within the ranking. The distinction is useful in that, for the purposes of the interaction it is important to get an on-screen result, however a comparison of rank positions gives a more direct indication of the performance of the retrieval.
-
-Higher rankings are achieved for all query lengths when using the trained generative model. Queries with lengths of approaching 10 seconds always yielded an on-screen result (in the top 6.7\% of the corpus). Up to this point the recognition rate improves with query length, as the additional information is incorporated. A key feature of note in these results is that queries over 10 seconds lead to a rapid fall-off in performance.
+\clearpage
 
 \subsubsection{Mean Reciprocal Rank}
 
-<<tapping-MRR, eval=TRUE, dev='png', fig.height=5, fig.width=7, fig.cap="Mean Reciprocal Rank (MRR) of rhythmic queries, higher values indicate a better ranking for relevant results.", fig.scap="Rhythmic retrieval performance (Mean Reciprocal Rank)">>=
+<<tapping-MRR, eval=TRUE, dev='png', fig.height=5, fig.width=7, fig.pos="!b", fig.cap="Mean Reciprocal Rank (MRR) of rhythmic queries, higher values indicate a better ranking for relevant results. The dramatic gap in performances reflects the improvement across the entire distribution of retrieval ranks, as well as the proportion of highly ranked results.", fig.scap="Rhythmic retrieval performance (Mean Reciprocal Rank)">>=
 ggplot(tapLengthResults, aes(x=Time, y=MRR, group=Condition, colour=Condition, shape=Condition)) + 
   geom_point(alpha=0.6) + geom_smooth(se=FALSE) +  
   xlab("Query length in seconds (log)") + ylab("Mean Reciprocal Rank") + 
@@ -342,6 +344,7 @@ ggplot(tapLengthResults, aes(x=Time, y=MRR, group=Condition, colour=Condition, s
   scale_x_log10(breaks=c(0.5,1,2,5,10,20,30)) + coord_cartesian(xlim=c(0.47,32))
 @
 
+Another useful measure is Mean Reciprocal Rank shown in figure \ref{fig:tapping-MRR}, reflecting more directly the position of the song within the ranking. The distinction is useful in that, for the purposes of the interaction it is important to get an on-screen result, however a comparison of rank positions gives a more direct indication of the performance of the retrieval. \cite{Voo99}
 \newpage
 
 %\begin{figure}[b]

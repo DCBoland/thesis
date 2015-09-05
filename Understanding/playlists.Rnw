@@ -35,16 +35,15 @@ class <- data$playlist
 fami <- apply(features,2,getAMI,class)
 @
 
-Identifying which music features best describe a range of playlists is not only useful for playlist recommendation, but also provides an insight into how users organise and think about music. Music recommendation and playlist generation typically work on the basis of genre, mood and popularity, and this chapter investigates which of these music features reflect the differences between playlists created by users. 
-
-As the existing music retrieval systems used by listeners are based upon these features, it is likely that a `chicken-and-egg' effect will apply, where the features which best describe user playlists are those which users are currently exposed to in their existing retrieval interfaces.
+Identifying which music features best describe a range of playlists is not only useful for playlist recommendation, but also provides an insight into how users organise and think about music. This section develops an approach to ranking music features according to the information they share with playlist organisation. Commercial features are used as an example, including high level features such as genre, mood and popularity.  %Music recommendation and playlist generation typically work on the basis of genre, mood and popularity, and this chapter investigates which of these music features reflect the differences between playlists created by users. 
+As the existing music retrieval systems used by listeners are based upon these features, it is likely that a `chicken-and-egg' effect will apply, where the features which best describe user playlists are those which users are currently exposed to in their existing retrieval interfaces. This approach requires discretised features, and is sensitive to discretisation strategy. The examples shown use features that were already discretised by the commercial provider.
 
 \subsection{Mutual Information}
 Information-theoretic measures can be used to identify to what degree a given feature shares information with class labels. For a feature $X$ and a class label $Y$, the mutual information $I \! \left(X ; Y\right)$ between these two can be given as:
 \begin{equation}
 I \! \left(X ; Y\right) = H \! \left(X\right) - H \! \left(X \! \mid \! Y\right),
 \end{equation}
-that is, the entropy of the feature $H \! \left(X\right)$ minus the entropy of that feature if the class is known $H \! \left(X \! \mid \! Y\right)$. Taking membership of playlists as a class label, it is then possible to determine how much can be known about a song's features if one knows what playlist the song is in. When using mutual information to compare clusterings in this way, care must be taken to account for random chance mutual information \citep{VinEppBai10}. This approach is adapted to focus on how much the feature entropy is reduced, and is normalised against the expectation of this feature's entropy accordingly:
+that is, the entropy of the feature $H \! \left(X\right)$ minus the entropy of that feature if the class is known $H \! \left(X \! \mid \! Y\right)$. Taking membership of playlists as a class label, it is then possible to determine how much can be known about a song's features if one knows what playlist the song is in. When using mutual information to consider class labels in this way, care must be taken to account for random chance mutual information \citep{VinEppBai10}. This approach is adapted to focus on how much the feature entropy is reduced, and is normalised against the expectation of this feature's entropy accordingly:
 \begin{equation}
 AMI \! \left(X; Y\right) = \frac{I \! \left(X ; Y\right) - E \! \left[I \! \left(X ; Y\right)\right]}{H \! \left(X\right) - E \! \left[I \! \left(X ; Y\right)\right]},
 \end{equation}
@@ -61,7 +60,7 @@ bestFeatures$feature <- factor(bestFeatures$feature, levels=bestFeatures$feature
 bestFeatures$MI <- bestFeatures$MI * 100
 ggplot(bestFeatures, aes(x=feature, y=MI, fill=MI)) + 
   geom_bar(stat="identity") + scale_fill_continuous() + #h=c(360,180)) + 
-  guides(fill=FALSE) + xlab("Feature") + ylab("% of uncertainty explained by playlist") +
+  guides(fill=FALSE) + xlab("Feature") + ylab("AMI(playlist, feature)") +
 	#ggtitle("Mutual Information Between Playlists and Features") +  
 	theme_bw(base_size = 12, base_family = "Helvetica") + theme(panel.border = element_blank(), panel.grid=element_blank()) +
 	theme(axis.text.x = element_text(angle = 90, hjust=1, vjust=0.25), axis.text.y = element_text(hjust=1))
