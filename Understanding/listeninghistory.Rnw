@@ -40,7 +40,7 @@ For each song being played by a user, the value of a given music feature can be 
 \label{entropy}
 H \! \left(X\right) &= -\sum_{x \in X} p\left(x\right) \log_2 \! \left(p\left(x\right)\right),\\
 \intertext{where $x$ is every possible level of the feature $X$ and the distribution $p \left(x\right)$ is estimated from the songs in the listening session. The resulting entropy value is measured in bits, though can be normalised by dividing by the maximum entropy. This feature scaling achieves a variable $H^\prime\!\left(X\right)$ in the range $[0,1]$:}
-H^\prime \! \left(X\right) &= \frac{H \! \left(X\right)}{\log_2 \! \left[\lvert X \rvert\right]},
+H^\prime \! \left(X\right) &= \frac{H \! \left(X\right)}{\log_2 \! \left(\lvert X \rvert\right)},
 \end{align}
 with the prime notation denoting the scaled function and the bar notation denoting cardinality not absolute value. The maximum entropy will in fact be determined by the minimum of either the number of possible feature levels or the cardinality of the set of songs. Estimating entropy in this way offers a generalised approach as it can be done for any set of features, though the calculation of entropy first requires that features are discretised.
 

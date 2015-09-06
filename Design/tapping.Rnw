@@ -344,7 +344,10 @@ ggplot(tapLengthResults, aes(x=Time, y=MRR, group=Condition, colour=Condition, s
   scale_x_log10(breaks=c(0.5,1,2,5,10,20,30)) + coord_cartesian(xlim=c(0.47,32))
 @
 
-Another useful measure is Mean Reciprocal Rank shown in figure \ref{fig:tapping-MRR}, reflecting more directly the position of the song within the ranking. The distinction is useful in that, for the purposes of the interaction it is important to get an on-screen result, however a comparison of rank positions gives a more direct indication of the performance of the retrieval. \cite{Voo99}
+Another useful measure is Mean Reciprocal Rank, shown in figure \ref{fig:tapping-MRR}, reflecting more directly the position of the song within the ranking. The distinction is useful in that, for the purposes of the interaction it is important to get an on-screen result, however a comparison of rank positions gives a more direct indication of the performance of the retrieval.\cite{Voo99} introduced this measure for the evaluation of retrieval systems and discusses its advantages, such as being bounded between 0 and 1. For a set of retrieval results $X$, with cardinality $\lvert X \rvert$, Mean Reciprocal Rank can be calculated as follows:
+\begin{equation*}
+MRR = \frac{1}{\lvert X \rvert} \sum_{x \in X} \frac{1}{rank(x)}.
+\end{equation*}
 \newpage
 
 %\begin{figure}[b]
