@@ -36,7 +36,7 @@ y_i &= y_{i-1} + \alpha (x_i - y_{i-1}),\\
 
 \clearpage
 \begin{landscape}
-<<pressure-analysis, dev='png', fig.cap="Results from a Fitt's law study of pressure interaction across a range of low-pass filter \\emph{time constant} $\\tau$ values. The reciprocal of the slope of the line indicates the interaction throughput, thus a less steep line is preferable. Note that for the lowest $\\tau$ values at the smallest distance, users struggled to control the pressure and \\citeauthor{Fit54}' law does not apply.", fig.scap="Fitt's law study of pressure interaction across filter values", fig.height=5, fig.width=9, fig.pos='hbtp'>>=
+<<pressure-analysis, dev='png', fig.cap="Results from a Fitts' law study of pressure interaction across a range of low-pass filter \\emph{time constant} $\\tau$ values. The reciprocal of the slope of the line indicates the interaction throughput, thus a less steep line is preferable. Note that for the lowest $\\tau$ values at the smallest distance, users struggled to control the pressure and \\citeauthor{Fit54}' law does not apply.", fig.scap="Fitts' law study of pressure interaction across filter values", fig.height=5, fig.width=9, fig.pos='hbtp'>>=
 library(dplyr)
 library(ggplot2)
 

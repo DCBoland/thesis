@@ -30,7 +30,7 @@ ggplot(lengths, aes(x=Freq)) + geom_histogram(binwidth=1, alpha=0.7) +
 
 \section{Measuring User Interaction}
 \label{measures:interaction}
-Listening histories were acquired from Last.fm\footnote{The Last.fm scraping code is available at \url{http://github.com/DCBoland/listenScraper}.}, along with the unique Spotify track IDs which were used to retrieve Spotify metadata. From these histories, it is possible to derive a number of measures about the user's interaction with their music retrieval system. Adding a song's duration to the time its playback started gives an indication of when the song would end without further intervention. Where a new song begins immediately after the expected end of a previous song, this is indicative of automatic playback such as playlists or albums %-- evidence of a lack of user intervention. 
+Listening histories were acquired from Last.fm,\footnote{The Last.fm scraping code is available at \url{http://github.com/DCBoland/listenScraper}.} along with the unique Spotify track IDs which were used to retrieve Spotify metadata. From these histories, it is possible to derive a number of measures about the user's interaction with their music retrieval system. Adding a song's duration to the time its playback started gives an indication of when the song would end without further intervention. Where a new song begins immediately after the expected end of a previous song, this is indicative of automatic playback such as playlists or albums %-- evidence of a lack of user intervention. 
 Songs which are interrupted early by a subsequent song, or which are followed by another song after a brief pause, are evidence of the user intervening to find new music to listen to. 
 
 The \textit{SPUD} dataset includes both listening histories and song durations for Last.fm users, which are used here to illustrate a number of measures and their relationships. This section explores how much of the user's music listening behaviour can be characterised in a generalised fashion, using only these interaction timestamps as opposed to the use of audio features explored later in \chapref{chap:info-theo}. These measures are defined using Iverson brackets, which map Boolean values to the integers $0$ and $1$ \citep[p24]{GraKnuPat94}.
@@ -66,14 +66,16 @@ Skip\ speed &= \frac{1}{j-1} \sum\limits_{s=1}^{j-1} \frac{d_s}{\Delta d_s}.
 Switch\ speed &= \frac{1}{k-1} \sum\limits_{s=1}^{k-1} \frac{1}{\Delta d_s}.
 \end{align*}
 
+\vspace{-0.05in}
 \subsubsection{On the use of the harmonic mean}
+\vspace{-0.05in}
 Sometimes listeners skip near the end of a song's playback, especially where a song is fading out. The time taken to skip would be large in these instances and would bias the arithmetic mean of time taken. For this reason, the harmonic mean of skip time taken is calculated instead, mitigating the effect of large outliers:
 \begin{align*}
 Skip\ time &= \frac{j-1}{\sum\limits_{s=1}^{j-1} \frac{d_s}{\Delta d_s}}.\\
 \intertext{It is simpler to consider this in terms of speed by taking the reciprocal of the above. The equation then simplifies to being the arithmetic mean of speed: }
 Skip\ speed &=\frac{1}{j-1} \sum\limits_{s=1}^{j-1} \frac{d_s}{\Delta d_s}.
 \end{align*}
-Note that when considering a rate, such as speed, one would typically use the harmonic of speed rather than arithmetic mean. The measure of interest however is not the average speed across all of the interaction time but is the expectation of the speed of a given selection.
+Note that when considering a rate, such as speed, one would typically use the harmonic of speed rather than arithmetic mean. The measure of interest, however, is not the average speed across all of the interaction time but is the expectation of the speed of a given selection.
 %The harmonic mean of speed $\bar{S}_H$ is the reciprocal of the arithmetic mean of time. The measure of interest however is not the average speed as taken across all of the interaction time (as captured by $\bar{S}_H$) but is the expectation of the speed taken in a given selection. The arithmetic mean of selection speeds is desirable then:
 
 

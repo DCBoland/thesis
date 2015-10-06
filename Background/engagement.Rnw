@@ -85,6 +85,7 @@ It follows from the above definitions that engagement determines the \emph{desir
 As music selections are made by either the user, or a recommender system, or both in part, the control over the interaction can be considered in terms of either of these agents. The more an agent provides information to reduce the uncertainty about the music to be played, the more control that agent has exerted. \emph{Retrieval control} can thus be measured quantitatively, as the difference between the entropy over a music collection and the entropy over the selection made. A shuffle-based music retrieval system would not reduce this uncertainty, providing 0 bits of influence. A recommender system would likely reduce the uncertainty significantly, and the user making a specific album selection would reduce nearly all uncertainty over the music collection. Much of the information communicated in an interaction may not directly reduce the uncertainty of the selection, as the user may attend for affective or exploratory reasons.
 
 \section{Synthesis}
+\label{sec:engsynth}
 The various conceptualisations of engagement are used throughout this thesis. For the sake of clarity, they are differentiated explicitly as:
 \begin{description}
 \item[Music engagement]{is a measure adopted from music psychology, capturing the importance of music and control over music selection to a listener.}

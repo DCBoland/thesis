@@ -1,9 +1,9 @@
-\documentclass[hidelinks,nogutter]{glasgowthesis}
-%\documentclass[hidelinks,gutter]{glasgowthesis}
+%\documentclass[hidelinks,nogutter]{glasgowthesis}
+\documentclass[hidelinks,gutter]{glasgowthesis}
 \usepackage{emptypage}
 \usepackage{graphics}
 \usepackage{graphicx}
-\usepackage{algorithmic}
+%\usepackage{algorithmic}
 %\usepackage{algorithm}
 %\usepackage{mcaption}
 \usepackage[font=scriptsize]{subfig}
@@ -22,7 +22,7 @@
 \usepackage{bookmark}
 
 \usepackage{color}
-\usepackage{changebar}
+%\usepackage{changebar}
 %\usepackage{soul}
 
 \usepackage{pdfpages}
@@ -37,6 +37,7 @@
 \usepackage{environ}
 \usepackage{tikz}
 \usetikzlibrary{calc,matrix}
+\usepackage[algochapter]{algorithm2e}
 \usepackage{listings}
 \hyphenation{Internet analysis analyse}
 \newcommand{\figref}[1]{\figurename~\ref{#1}}

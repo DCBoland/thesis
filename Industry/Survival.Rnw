@@ -87,11 +87,15 @@ legend(0, 10, paste(cohorts, "Days Cohort"), lty = 1:3, col=2:4)
 \newpage
 
 \subsection{Commercial Insights}
-500 day cohort - competitor.
+The key insight of the analyses of the start-up's user behaviour in this section is the point marked at day 500, where the population size began to decrease. This change is highlighted in the cohort survivorship analysis, with the striking contrast in adoption rate amongst the cohort of users joining around the 500 day point. Identifying such events and differences in user cohorts can provide valuable commercial insight. While the details of the event in this case are confidential, the effect was due to a disruptive competitor entering the market.
+
+In the example shown, cohorts were defined in terms of the dates that users joined the service. Further insights could be gained by considering user cohorts in terms of other contextual variables, e.g., age or location. In addition to looking at how long users continued their use of the service, these techniques have also been applied to the return time of users to a service, based on the hypothesis that more engaged users will return to a service more frequently \citep{DupLal13,KapSunSri14}.
 
 \section{Conclusions}
+This chapter has explored some of the ways in which the work of this thesis can have an impact in industry. This Ph.D.\ work was funded by Bang \& Olufsen and thus was part of an ongoing dialogue with their designers and researchers. The idea of an engagement-dependent mood wheel interface was presented as an outcome of this thesis work, and subsequently proved influential in the development of the BeoSound Moment. The evaluative methods and measures developed in \chapref{chap:measures} were used to conduct a preliminary evaluation of the implemented product, yielding initial feedback as well as providing an approach for use in continuing evaluations.
 
+A further application of engagement-based evaluations was then explored, using a dataset provided by a music start-up featuring millions of users. In this case, user engagement was considered in terms of survival, capturing the duration of time that users remained engaged with a service. Through the use of Survival Analysis techniques, a key event was identified that had a significant effect on users' engagement with the service. This approach provides a large-scale, longitudinal view of user engagement with a music retrieval system.
 \newpage
--
-
+\null
+\newpage
 \cleardoublepage
